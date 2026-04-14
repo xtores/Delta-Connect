@@ -31,34 +31,215 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 .app{display:flex;min-height:100vh;}
 
 /* ── SIDEBAR ── */
-.sidebar{width:var(--sw);flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:200;transition:width .26s cubic-bezier(.4,0,.2,1),transform .26s cubic-bezier(.4,0,.2,1);overflow:hidden;}
+.sidebar{
+  width:var(--sw);
+  flex-shrink:0;
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  position:fixed;
+  top:0;left:0;bottom:0;
+  z-index:200;
+  transition:width .28s cubic-bezier(.4,0,.2,1),transform .28s cubic-bezier(.4,0,.2,1);
+  /* overflow:hidden is essential — but we must NOT clip tooltips.
+     Tooltips escape via position:fixed so this is safe. */
+  overflow:hidden;
+}
 .sidebar.col{width:var(--sc);}
-@media(max-width:768px){.sidebar{transform:translateX(-100%);width:var(--sw)!important;}.sidebar.mob-open{transform:translateX(0);}}
+
+/* Mobile: slide in/out */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);width:var(--sw)!important;}
+  .sidebar.mob-open{transform:translateX(0);}
+}
 .mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:199;backdrop-filter:blur(3px);}
-.logo{padding:16px 14px 13px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;min-height:64px;flex-shrink:0;}
-.logo-mark{display:flex;align-items:center;gap:10px;overflow:hidden;}
-.logo-icon{width:32px;height:32px;min-width:32px;background:linear-gradient(135deg,var(--accent),#00a07a);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;}
-.logo-texts{overflow:hidden;white-space:nowrap;transition:opacity .2s,width .2s;}
-.sidebar.col .logo-texts{opacity:0;width:0;}
-.logo-name{font-family:var(--display);font-size:13px;font-weight:700;}
-.logo-sub{font-size:10px;color:var(--muted);font-family:var(--mono);}
-.toggle-btn{width:24px;height:24px;min-width:24px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .15s;flex-shrink:0;}
-.toggle-btn:hover{color:var(--text);border-color:var(--accent);}
-.sidebar.col .logo{justify-content:center;}
-.nav{padding:10px 8px;flex:1;overflow:hidden;}
-.nav-sec{font-size:9px;color:var(--muted2);font-family:var(--mono);letter-spacing:.1em;padding:9px 10px 3px;text-transform:uppercase;white-space:nowrap;transition:opacity .2s;}
-.sidebar.col .nav-sec{opacity:0;}
-.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;color:var(--muted);font-size:13px;transition:all .15s;margin-bottom:1px;white-space:nowrap;overflow:hidden;}
+
+/* ── LOGO AREA ── */
+.logo{
+  padding:0 12px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  height:64px;           /* fixed height — never reflows */
+  flex-shrink:0;
+  overflow:hidden;
+}
+.logo-mark{display:flex;align-items:center;gap:10px;min-width:0;flex:1;overflow:hidden;}
+.logo-icon{
+  width:32px;height:32px;min-width:32px;
+  background:linear-gradient(135deg,var(--accent),#00a07a);
+  border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;flex-shrink:0;
+}
+/* Text wrapper: use max-width + opacity so text fully disappears */
+.logo-texts{
+  overflow:hidden;
+  white-space:nowrap;
+  max-width:160px;          /* expanded: full width */
+  opacity:1;
+  transition:max-width .28s cubic-bezier(.4,0,.2,1), opacity .18s ease;
+}
+.sidebar.col .logo-texts{
+  max-width:0;              /* collapsed: zero width — no clipping artifact */
+  opacity:0;
+}
+.logo-name{font-family:var(--display);font-size:13px;font-weight:700;white-space:nowrap;}
+.logo-sub{font-size:10px;color:var(--muted);font-family:var(--mono);white-space:nowrap;}
+
+/* Toggle button always visible */
+.toggle-btn{
+  width:26px;height:26px;min-width:26px;
+  border-radius:6px;border:1px solid var(--border2);
+  background:var(--surface2);color:var(--muted);
+  cursor:pointer;display:flex;align-items:center;
+  justify-content:center;font-size:12px;
+  transition:color .15s,border-color .15s,background .15s;
+  flex-shrink:0;margin-left:6px;
+}
+.toggle-btn:hover{color:var(--text);border-color:var(--accent);background:var(--accent-dim);}
+
+/* ── NAV ── */
+.nav{padding:8px 6px;flex:1;overflow-y:auto;overflow-x:hidden;}
+.nav::-webkit-scrollbar{width:3px;}
+.nav::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+/* Section divider labels */
+.nav-sec{
+  font-size:9px;color:var(--muted2);font-family:var(--mono);
+  letter-spacing:.1em;
+  padding:10px 8px 3px;
+  text-transform:uppercase;
+  white-space:nowrap;
+  max-width:200px;
+  opacity:1;
+  overflow:hidden;
+  /* use height transition so it fully collapses — avoids gap */
+  max-height:30px;
+  transition:max-height .28s cubic-bezier(.4,0,.2,1),
+             opacity .15s ease,
+             padding .28s cubic-bezier(.4,0,.2,1);
+}
+.sidebar.col .nav-sec{
+  max-height:0;            /* fully removes the gap */
+  opacity:0;
+  padding-top:0;
+  padding-bottom:0;
+}
+
+/* Nav items */
+.nav-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 8px;
+  border-radius:8px;
+  cursor:pointer;
+  color:var(--muted);
+  font-size:13px;
+  font-weight:400;
+  transition:background .15s,color .15s;
+  margin-bottom:1px;
+  position:relative;       /* anchor for tooltip */
+  overflow:visible;         /* allow tooltip to escape */
+  white-space:nowrap;
+}
 .nav-item:hover{background:var(--surface2);color:var(--text);}
 .nav-item.active{background:var(--accent-dim);color:var(--accent);font-weight:500;}
-.nav-icon{font-size:15px;width:20px;min-width:20px;text-align:center;flex-shrink:0;}
-.nav-label{transition:opacity .2s;}
-.sidebar.col .nav-label{opacity:0;}
-.nav-badge{margin-left:auto;font-size:9px;padding:1px 6px;border-radius:20px;background:var(--accent-dim);color:var(--accent);font-family:var(--mono);transition:opacity .2s;}
-.sidebar.col .nav-badge{opacity:0;}
-.sidebar-footer{padding:11px 14px;border-top:1px solid var(--border);font-size:10px;color:var(--muted2);white-space:nowrap;overflow:hidden;transition:opacity .2s;flex-shrink:0;}
-.sidebar.col .sidebar-footer{opacity:0;}
-.cdot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--muted2);margin-right:5px;vertical-align:middle;}
+
+.nav-icon{
+  font-size:16px;
+  width:22px;min-width:22px;
+  text-align:center;
+  flex-shrink:0;
+  line-height:1;
+}
+
+/* Label: slides out using max-width so overflow is never visible */
+.nav-label{
+  overflow:hidden;
+  white-space:nowrap;
+  max-width:160px;
+  opacity:1;
+  transition:max-width .28s cubic-bezier(.4,0,.2,1),
+             opacity .15s ease;
+  flex:1;
+  min-width:0;
+}
+.sidebar.col .nav-label{
+  max-width:0;
+  opacity:0;
+}
+
+/* Badge (number indicator) */
+.nav-badge{
+  margin-left:auto;
+  font-size:9px;padding:1px 6px;
+  border-radius:20px;
+  background:var(--accent-dim);color:var(--accent);
+  font-family:var(--mono);
+  flex-shrink:0;
+  max-width:40px;opacity:1;
+  overflow:hidden;
+  transition:max-width .28s cubic-bezier(.4,0,.2,1),
+             opacity .15s ease,
+             padding .28s cubic-bezier(.4,0,.2,1);
+}
+.sidebar.col .nav-badge{
+  max-width:0;
+  opacity:0;
+  padding-left:0;padding-right:0;
+}
+
+/* ── TOOLTIP (position:fixed so it escapes overflow:hidden) ── */
+.nav-tooltip{
+  position:fixed;
+  left:calc(var(--sc) + 8px);    /* sits just outside collapsed sidebar */
+  background:var(--surface3);
+  border:1px solid var(--border2);
+  border-radius:7px;
+  padding:5px 11px;
+  font-size:12px;
+  color:var(--text);
+  font-family:var(--font);
+  white-space:nowrap;
+  pointer-events:none;
+  opacity:0;
+  transform:translateX(-4px);
+  transition:opacity .15s ease, transform .15s ease;
+  z-index:9999;
+  box-shadow:0 4px 16px rgba(0,0,0,.4);
+}
+.nav-tooltip.visible{
+  opacity:1;
+  transform:translateX(0);
+}
+
+/* ── FOOTER ── */
+.sidebar-footer{
+  padding:10px 12px;
+  border-top:1px solid var(--border);
+  font-size:10px;color:var(--muted2);
+  white-space:nowrap;
+  overflow:hidden;
+  flex-shrink:0;
+  /* use max-height + opacity to fully collapse */
+  max-height:60px;
+  opacity:1;
+  transition:max-height .28s cubic-bezier(.4,0,.2,1),
+             opacity .15s ease,
+             padding .28s cubic-bezier(.4,0,.2,1);
+}
+.sidebar.col .sidebar-footer{
+  max-height:0;
+  opacity:0;
+  padding-top:0;
+  padding-bottom:0;
+}
+
+.cdot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--muted2);margin-right:5px;vertical-align:middle;flex-shrink:0;}
 .cdot.live{background:var(--green);box-shadow:0 0 5px rgba(74,222,128,.5);}
 
 /* ── MAIN ── */
@@ -209,40 +390,171 @@ tbody td{padding:10px 11px;font-size:12px;}
 .smart-empty-icon{font-size:36px;margin-bottom:10px;}
 
 /* ══════════════════════════════
-   PHASE 2 — ORG CHART
+   ORG CHART — HIERARCHICAL TREE
 ══════════════════════════════ */
-.org-wrap{padding:16px 20px 40px;display:none;}
+.org-wrap{padding:16px 0 40px;display:none;}
+
+.org-inner-pad{padding:0 20px;}
+
 .org-wrap.active{display:block;}
 .org-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
 .org-title{font-family:var(--display);font-size:15px;font-weight:600;}
 .org-hint{font-size:11px;color:var(--muted);margin-left:auto;}
-.org-scroll{overflow-x:auto;padding-bottom:20px;}
-.org-tree{display:inline-flex;flex-direction:column;align-items:center;min-width:100%;}
-.org-level{display:flex;align-items:flex-start;justify-content:center;gap:0;position:relative;padding:0 10px;}
-.org-group{display:flex;flex-direction:column;align-items:center;}
-.org-node{background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:10px 14px;cursor:pointer;transition:all .2s;text-align:center;width:140px;margin:0 6px;flex-shrink:0;position:relative;}
-.org-node:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.25);}
-.org-node.mgmt{border-color:rgba(0,212,160,.3);background:rgba(0,212,160,.05);}
-.org-av{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:13px;font-weight:700;margin:0 auto 6px;}
-.org-name{font-size:11px;font-weight:600;font-family:var(--display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.org-job{font-size:9px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.org-dept-dot{width:6px;height:6px;border-radius:50%;margin:4px auto 0;display:block;}
-.org-connector-v{width:1px;height:20px;background:var(--border2);margin:0 auto;}
-.org-connector-h{height:1px;background:var(--border2);position:absolute;top:0;}
-.org-children-wrap{display:flex;flex-direction:column;align-items:center;}
-.org-children{display:flex;align-items:flex-start;justify-content:center;position:relative;}
-.org-h-line{position:absolute;top:0;left:0;right:0;height:1px;background:var(--border2);}
-.org-child-col{display:flex;flex-direction:column;align-items:center;margin:0 6px;}
 
-/* ── ORG DETAIL PANEL ── */
-.org-detail{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:16px;margin-top:16px;display:none;animation:fadeIn .2s ease;}
+/* Outer scroll container — allows horizontal scroll on mobile */
+.org-scroll{
+  width:100%;
+  overflow-x:auto;
+  overflow-y:auto;
+  padding:20px 0 28px;
+  -webkit-overflow-scrolling:touch;
+  scroll-behavior:smooth;
+  /* styled scrollbar — visible on desktop */
+  scrollbar-width:thin;
+  scrollbar-color:var(--border2) transparent;
+}
+.org-scroll::-webkit-scrollbar{height:6px;background:transparent;}
+.org-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+.org-scroll::-webkit-scrollbar-thumb:hover{background:var(--muted2);}
+
+/* The SVG connector canvas + node overlay share this wrapper */
+.org-canvas-wrap{
+  position:relative;
+  display:block;      /* block so width is respected */
+  flex-shrink:0;      /* never compress inside flex parents */
+}
+
+/* SVG connector lines sit behind everything */
+.org-svg{
+  position:absolute;
+  top:0;left:0;
+  width:100%;height:100%;
+  pointer-events:none;
+  overflow:visible;
+}
+
+/* Level rows */
+.org-level-row{
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  position:relative;
+}
+
+/* Each node's column wrapper — handles centering above children */
+.org-col{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  position:relative;
+  padding:0 10px;
+}
+
+/* The actual clickable node card */
+.org-node{
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:10px;
+  padding:11px 13px 10px;
+  cursor:pointer;
+  text-align:center;
+  width:148px;
+  flex-shrink:0;
+  position:relative;
+  transition:border-color .2s,transform .18s,box-shadow .18s;
+  z-index:2;
+}
+.org-node:hover{
+  border-color:var(--accent);
+  transform:translateY(-3px);
+  box-shadow:0 8px 24px rgba(0,0,0,.32);
+}
+.org-node.level-0{
+  border-color:rgba(0,212,160,.55);
+  background:rgba(0,212,160,.07);
+  width:176px;
+  box-shadow:0 0 0 3px rgba(0,212,160,.08);
+}
+.org-node.level-0 .org-av{
+  width:42px;height:42px;font-size:16px;border-radius:11px;
+}
+.org-node.level-0 .org-name{font-size:12px;}
+.org-node.level-0 .org-job{font-size:10px;color:var(--accent);opacity:.9;}
+.org-node.level-1{
+  border-color:rgba(59,158,255,.32);
+  background:rgba(59,158,255,.05);
+  width:148px;
+}
+.org-node.level-1 .org-av{width:34px;height:34px;font-size:13px;}
+.org-node.level-2{
+  border-color:var(--border2);
+  background:var(--surface);
+  width:148px;
+  opacity:.95;
+}
+.org-node.level-2 .org-av{width:30px;height:30px;font-size:12px;border-radius:8px;}
+.org-node.level-2 .org-name{font-size:10px;}
+.org-node.level-2 .org-job{font-size:9px;}
+.org-node.ooo-node{
+  border-style:dashed;
+  opacity:.82;
+}
+
+/* Avatar inside node */
+.org-av{
+  width:36px;height:36px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--display);font-size:14px;font-weight:700;
+  margin:0 auto 7px;
+}
+.org-name{
+  font-size:11px;font-weight:600;font-family:var(--display);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  line-height:1.3;
+}
+.org-job{
+  font-size:9px;color:var(--muted);margin-top:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  line-height:1.4;
+}
+.org-dept-dot{
+  width:6px;height:6px;border-radius:50%;
+  margin:5px auto 0;display:block;
+}
+.org-ooo-label{
+  position:absolute;top:-7px;right:-6px;
+  font-size:8px;padding:1px 5px;border-radius:20px;
+  background:var(--surface);border:1px solid rgba(255,179,71,.5);
+  color:var(--warn);font-family:var(--mono);line-height:1.4;
+}
+.org-reports-badge{
+  position:absolute;bottom:-7px;left:50%;transform:translateX(-50%);
+  font-size:8px;padding:1px 6px;border-radius:20px;
+  background:var(--surface2);border:1px solid var(--border2);
+  color:var(--muted2);font-family:var(--mono);white-space:nowrap;
+}
+
+/* Children row sits below a node */
+.org-children-row{
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  margin-top:0;
+  position:relative;
+}
+
+/* Vertical spacer between node and its children row */
+.org-v-gap{height:36px;}
+
+/* ── ORG DETAIL PANEL (unchanged) ── */
+.org-detail{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:16px;margin-top:20px;display:none;animation:fadeIn .2s ease;}
 .org-detail.vis{display:block;}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 .od-header{display:flex;align-items:center;gap:13px;margin-bottom:13px;}
 .od-av{width:48px;height:48px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:18px;font-weight:700;flex-shrink:0;}
 .od-name{font-family:var(--display);font-size:16px;font-weight:700;}
 .od-job{font-size:12px;color:var(--muted);margin-top:2px;}
 .od-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+@media(max-width:500px){.od-meta{grid-template-columns:1fr;}}
 .od-field{background:var(--surface2);border-radius:8px;padding:8px 11px;}
 .od-label{font-size:9px;color:var(--muted2);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;}
 .od-value{font-size:12px;color:var(--text);margin-top:2px;}
@@ -250,46 +562,284 @@ tbody td{padding:10px 11px;font-size:12px;}
 .od-resp-label{font-size:10px;color:var(--muted);margin-bottom:6px;font-family:var(--mono);}
 .od-resp-tags{display:flex;flex-wrap:wrap;gap:4px;}
 .od-resp-tag{font-size:10px;padding:2px 7px;border-radius:4px;background:var(--surface2);border:1px solid var(--border2);color:var(--muted);font-family:var(--mono);}
-.od-actions{display:flex;gap:6px;margin-top:12px;}
-.od-btn{flex:1;padding:8px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);font-size:11px;cursor:pointer;font-family:var(--font);transition:all .15s;text-align:center;}
+.od-actions{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;}
+.od-btn{flex:1;min-width:70px;padding:9px 6px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);font-size:11px;cursor:pointer;font-family:var(--font);transition:all .15s;text-align:center;}
 .od-btn:hover{border-color:var(--blue);color:var(--blue);}
 .od-btn.wa:hover{border-color:#25d366;color:#25d366;}
 
-/* ══════════════════════════════
-   PHASE 2 — DASHBOARD
-══════════════════════════════ */
-.dash-wrap{padding:16px 20px 40px;display:none;}
-.dash-wrap.active{display:block;}
-.dash-title{font-family:var(--display);font-size:15px;font-weight:600;margin-bottom:16px;}
-.kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:20px;}
-.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:14px 16px;position:relative;overflow:hidden;}
-.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
-.kpi-val{font-family:var(--display);font-size:26px;font-weight:700;line-height:1;}
-.kpi-label{font-size:11px;color:var(--muted);margin-top:4px;}
-.kpi-icon{position:absolute;top:12px;right:14px;font-size:22px;opacity:.25;}
-.kpi-green::before{background:var(--green);}
-.kpi-blue::before{background:var(--blue);}
-.kpi-accent::before{background:var(--accent);}
-.kpi-warn::before{background:var(--warn);}
-.kpi-purple::before{background:var(--purple);}
+/* Mobile: keep tree scrollable, never collapse */
+@media(max-width:768px){
+  .org-node{width:118px;padding:9px 8px 8px;}
+  .org-node.level-0{width:128px;}
+  .org-col{padding:0 5px;}
+  .org-av{width:28px;height:28px;font-size:11px;}
+  .org-name{font-size:10px;}
+  .org-job{font-size:8px;}
+  /* ensure scroll always works on mobile */
+  .org-scroll{
+    overflow-x:scroll!important;
+    overflow-y:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+  }
+  .org-inner-pad{padding:0 14px;}
+}
 
-.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+/* ══════════════════════════════
+   DASHBOARD — EXECUTIVE STYLE
+══════════════════════════════ */
+.dash-wrap{padding:0 0 48px;display:none;}
+.dash-wrap.active{display:block;}
+
+/* Page header */
+.dash-page-header{
+  padding:22px 24px 18px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:24px;
+}
+.dash-page-title{
+  font-family:var(--display);font-size:18px;font-weight:700;
+  letter-spacing:-.01em;margin-bottom:4px;
+}
+.dash-page-sub{
+  font-size:12px;color:var(--muted);line-height:1.5;
+}
+
+/* KPI strip */
+.kpi-row{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:12px;
+  padding:0 24px;
+  margin-bottom:24px;
+}
+@media(max-width:900px){.kpi-row{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:600px){.kpi-row{grid-template-columns:repeat(2,1fr);}}
+
+.kpi-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:18px 16px 16px;
+  position:relative;
+  overflow:hidden;
+  transition:border-color .2s,transform .18s;
+}
+.kpi-card:hover{border-color:var(--border2);transform:translateY(-1px);}
+.kpi-card::before{
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:2px;
+  border-radius:12px 12px 0 0;
+}
+.kpi-card::after{
+  content:'';position:absolute;
+  bottom:0;left:0;right:0;top:0;
+  border-radius:12px;
+  opacity:.03;
+  pointer-events:none;
+}
+.kpi-accent::before{background:var(--accent);}
+.kpi-accent::after{background:var(--accent);}
+.kpi-blue::before{background:var(--blue);}
+.kpi-blue::after{background:var(--blue);}
+.kpi-green::before{background:var(--green);}
+.kpi-green::after{background:var(--green);}
+.kpi-warn::before{background:var(--warn);}
+.kpi-warn::after{background:var(--warn);}
+.kpi-purple::before{background:var(--purple);}
+.kpi-purple::after{background:var(--purple);}
+
+.kpi-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;}
+.kpi-icon-box{
+  width:32px;height:32px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;flex-shrink:0;
+  background:var(--surface2);
+}
+.kpi-val{
+  font-family:var(--display);
+  font-size:30px;font-weight:700;
+  line-height:1;letter-spacing:-.02em;
+  margin-bottom:5px;
+}
+.kpi-label{font-size:11px;color:var(--muted);font-weight:400;line-height:1.3;}
+.kpi-trend{
+  font-size:10px;font-family:var(--mono);
+  color:var(--muted2);margin-top:6px;
+}
+
+/* Section header inside dashboard */
+.dash-section-header{
+  padding:0 24px;margin-bottom:12px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.dash-section-title{
+  font-family:var(--display);font-size:13px;font-weight:600;
+  color:var(--text);
+  display:flex;align-items:center;gap:8px;
+}
+.dash-section-title::before{
+  content:'';display:block;
+  width:3px;height:14px;
+  border-radius:2px;
+  background:var(--accent);
+  flex-shrink:0;
+}
+.dash-section-sub{font-size:11px;color:var(--muted2);}
+
+/* Insight grid */
+.dash-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  padding:0 24px;
+  margin-bottom:14px;
+}
 @media(max-width:700px){.dash-grid{grid-template-columns:1fr;}}
-.dash-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:16px;}
-.dash-card-title{font-family:var(--display);font-size:13px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+
+.dash-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:18px 18px 16px;
+  transition:border-color .2s;
+}
+.dash-card:hover{border-color:var(--border2);}
+.dash-card-title{
+  font-family:var(--display);
+  font-size:12px;font-weight:600;
+  margin-bottom:16px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  display:flex;align-items:center;gap:8px;
+}
+.dash-card-title-dot{
+  width:6px;height:6px;border-radius:50%;flex-shrink:0;
+}
 .dash-card.full{grid-column:1/-1;}
-.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
-.bar-label{font-size:11px;color:var(--muted);width:100px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.bar-outer{flex:1;height:8px;background:var(--surface3);border-radius:4px;overflow:hidden;}
-.bar-inner{height:100%;border-radius:4px;transition:width .6s ease;}
-.bar-count{font-size:11px;font-family:var(--mono);color:var(--muted);width:20px;text-align:right;flex-shrink:0;}
-.loc-badge{display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;margin:4px;font-size:12px;}
-.loc-num{font-family:var(--display);font-size:18px;font-weight:700;color:var(--accent);}
-.loc-name{font-size:11px;color:var(--muted);margin-top:1px;}
-.donut-wrap{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
-.donut-legend{display:flex;flex-direction:column;gap:6px;flex:1;}
-.donut-legend-item{display:flex;align-items:center;gap:7px;font-size:11px;}
-.donut-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* Bar chart rows */
+.bar-row{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:10px;
+}
+.bar-row:last-child{margin-bottom:0;}
+.bar-label{
+  font-size:11px;color:var(--muted);
+  width:110px;flex-shrink:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.bar-outer{
+  flex:1;height:6px;
+  background:var(--surface3);
+  border-radius:3px;overflow:hidden;
+}
+.bar-inner{
+  height:100%;border-radius:3px;
+  transition:width .7s cubic-bezier(.4,0,.2,1);
+}
+.bar-count{
+  font-size:11px;font-family:var(--mono);
+  color:var(--text);
+  width:24px;text-align:right;flex-shrink:0;
+  font-weight:500;
+}
+
+/* Location badges */
+.loc-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-bottom:16px;
+}
+.loc-badge{
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  border-radius:10px;
+  padding:12px 14px;
+}
+.loc-num{
+  font-family:var(--display);font-size:22px;font-weight:700;
+  color:var(--accent);line-height:1;
+}
+.loc-name{font-size:11px;color:var(--muted);margin-top:3px;}
+
+/* City dept breakdown */
+.city-section{margin-bottom:14px;}
+.city-section:last-child{margin-bottom:0;}
+.city-name-row{
+  display:flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:600;
+  font-family:var(--display);
+  margin-bottom:7px;
+  padding-bottom:6px;
+  border-bottom:1px solid var(--border);
+}
+.city-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);flex-shrink:0;}
+.city-count{font-size:10px;color:var(--muted2);font-family:var(--mono);margin-left:auto;}
+.dept-chip{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:10px;padding:3px 8px;border-radius:20px;
+  margin:2px;font-family:var(--mono);
+  border:1px solid;
+}
+
+/* OOO list */
+.ooo-row{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 0;
+  border-bottom:1px solid var(--border);
+}
+.ooo-row:last-child{border-bottom:none;}
+.ooo-av{
+  width:30px;height:30px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;flex-shrink:0;
+  font-family:var(--display);
+}
+.ooo-name{font-size:12px;font-weight:500;}
+.ooo-role{font-size:10px;color:var(--muted);margin-top:1px;}
+.ooo-status{
+  margin-left:auto;flex-shrink:0;
+  font-size:9px;padding:2px 7px;border-radius:20px;
+  background:rgba(255,179,71,.12);color:var(--warn);
+  border:1px solid rgba(255,179,71,.25);font-family:var(--mono);
+}
+
+/* Summary table rows */
+.summary-row{
+  display:flex;align-items:center;
+  justify-content:space-between;
+  padding:9px 0;
+  border-bottom:1px solid var(--border);
+}
+.summary-row:last-child{border-bottom:none;}
+.summary-dept{display:flex;align-items:center;gap:8px;font-size:12px;}
+.summary-icon{font-size:13px;width:20px;text-align:center;}
+.summary-count{
+  font-family:var(--mono);font-size:12px;
+  font-weight:600;
+}
+
+/* Live status card */
+.dash-live-card{
+  margin:0 24px 20px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:14px 18px;
+  display:flex;align-items:center;gap:14px;
+}
+.dash-live-icon{font-size:18px;flex-shrink:0;}
+.dash-live-title{font-size:12px;font-weight:600;font-family:var(--display);}
+.dash-live-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.dash-live-badge{
+  margin-left:auto;flex-shrink:0;
+  font-size:10px;padding:3px 10px;border-radius:20px;
+  font-family:var(--mono);font-weight:500;
+}
+.dash-live-badge.live{background:rgba(74,222,128,.12);color:var(--green);border:1px solid rgba(74,222,128,.25);}
+.dash-live-badge.local{background:var(--surface2);color:var(--muted2);border:1px solid var(--border2);}
 
 /* ── LOGIN ── */
 .login-screen{position:fixed;inset:0;z-index:400;background:rgba(12,14,20,.97);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);}
@@ -551,53 +1101,101 @@ tbody td{padding:10px 11px;font-size:12px;}
 <div class="app">
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
+    <!-- Logo row -->
     <div class="logo">
       <div class="logo-mark">
         <div class="logo-icon">💪</div>
-        <div class="logo-texts"><div class="logo-name">Delta Fitness</div><div class="logo-sub">Operations Portal</div></div>
+        <div class="logo-texts">
+          <div class="logo-name">Delta Fitness</div>
+          <div class="logo-sub">Operations Portal</div>
+        </div>
       </div>
-      <button class="toggle-btn" id="toggle-btn" onclick="toggleSidebar()" title="Collapse sidebar" aria-label="Toggle sidebar">◀</button>
+      <button class="toggle-btn" id="toggle-btn" onclick="toggleSidebar()"
+        title="Collapse sidebar" aria-label="Toggle sidebar">◀</button>
     </div>
-    <nav class="nav">
+
+    <!-- Navigation -->
+    <nav class="nav" id="sidebar-nav">
       <div class="nav-sec">Directory</div>
-      <div class="nav-item active" id="n-dir" onclick="goView('directory');closeMob()">
-        <span class="nav-icon">🔍</span><span class="nav-label">Directory</span>
+      <div class="nav-item active" id="n-dir"
+        data-tooltip="Directory"
+        onclick="goView('directory');closeMob()">
+        <span class="nav-icon">🔍</span>
+        <span class="nav-label">Directory</span>
         <span class="nav-badge" id="nb-total">0</span>
       </div>
-      <div class="nav-item" id="n-smart" onclick="goView('smart');closeMob()">
-        <span class="nav-icon">🧠</span><span class="nav-label">Who handles X?</span>
+      <div class="nav-item" id="n-smart"
+        data-tooltip="Who handles X?"
+        onclick="goView('smart');closeMob()">
+        <span class="nav-icon">🧠</span>
+        <span class="nav-label">Who handles X?</span>
       </div>
+
       <div class="nav-sec">Insights</div>
-      <div class="nav-item" id="n-org" onclick="goView('org');closeMob()">
-        <span class="nav-icon">🌳</span><span class="nav-label">Org Chart</span>
+      <div class="nav-item" id="n-org"
+        data-tooltip="Org Chart"
+        onclick="goView('org');closeMob()">
+        <span class="nav-icon">🌳</span>
+        <span class="nav-label">Org Chart</span>
       </div>
-      <div class="nav-item" id="n-dash" onclick="goView('dashboard');closeMob()">
-        <span class="nav-icon">📊</span><span class="nav-label">Dashboard</span>
+      <div class="nav-item" id="n-dash"
+        data-tooltip="Dashboard"
+        onclick="goView('dashboard');closeMob()">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">Dashboard</span>
       </div>
+
       <div class="nav-sec">Knowledge</div>
-      <div class="nav-item" id="n-sop" onclick="goView('sop');closeMob()">
-        <span class="nav-icon">📘</span><span class="nav-label">SOP Manual</span>
+      <div class="nav-item" id="n-sop"
+        data-tooltip="SOP Manual"
+        onclick="goView('sop');closeMob()">
+        <span class="nav-icon">📘</span>
+        <span class="nav-label">SOP Manual</span>
         <span class="nav-badge" id="nb-sop"></span>
       </div>
-      <div class="nav-item" id="n-tm" onclick="goView('tasks');closeMob()">
-        <span class="nav-icon">📋</span><span class="nav-label">Task Ownership</span>
+      <div class="nav-item" id="n-tm"
+        data-tooltip="Task Ownership"
+        onclick="goView('tasks');closeMob()">
+        <span class="nav-icon">📋</span>
+        <span class="nav-label">Task Ownership</span>
       </div>
+
       <div class="nav-sec">Admin</div>
-      <div class="nav-item" id="n-admin" onclick="requireLogin()">
-        <span class="nav-icon">⚙️</span><span class="nav-label">Admin Panel</span>
+      <div class="nav-item" id="n-admin"
+        data-tooltip="Admin Panel"
+        onclick="requireLogin()">
+        <span class="nav-icon">⚙️</span>
+        <span class="nav-label">Admin Panel</span>
       </div>
-      <div class="nav-item" onclick="exportCSV()">
-        <span class="nav-icon">📥</span><span class="nav-label">Export CSV</span>
+      <div class="nav-item"
+        data-tooltip="Export CSV"
+        onclick="exportCSV()">
+        <span class="nav-icon">📥</span>
+        <span class="nav-label">Export CSV</span>
       </div>
-      <div class="nav-item" id="n-sheets" onclick="openSheetsModal()">
-        <span class="nav-icon">🔗</span><span class="nav-label">Google Sheets</span>
+      <div class="nav-item" id="n-sheets"
+        data-tooltip="Data Sources (Admin)"
+        onclick="openSheetsModal()">
+        <span class="nav-icon">🔗</span>
+        <span class="nav-label">Google Sheets</span>
       </div>
     </nav>
-    <div class="sidebar-footer">
-      <span class="cdot" id="cdot"></span><span id="clabel" style="flex:1">Sample data · <a onclick="openSheetsModal()" style="color:var(--accent);cursor:pointer;text-decoration:underline">Connect Sheets</a></span>
-    <div style="font-size:9px;color:var(--muted2);margin-top:4px;font-family:var(--mono)">v4.0 · Delta Fitness Portal</div>
+
+    <!-- Footer — hidden when collapsed -->
+    <div class="sidebar-footer" id="sidebar-footer">
+      <div style="display:flex;align-items:center;gap:0">
+        <span class="cdot" id="cdot"></span>
+        <span id="clabel">Sample data · <a onclick="openSheetsModal()"
+          style="color:var(--accent);cursor:pointer">Connect Sheets</a></span>
+      </div>
+      <div style="font-size:9px;color:var(--muted2);margin-top:4px;font-family:var(--mono)">
+        v4.0 · Delta Fitness Portal
+      </div>
     </div>
   </aside>
+
+  <!-- Floating tooltip (shared, moved by JS) -->
+  <div class="nav-tooltip" id="nav-tooltip"></div>
 
   <!-- MAIN -->
   <main class="main" id="main-area">
@@ -616,9 +1214,10 @@ tbody td{padding:10px 11px;font-size:12px;}
     <!-- ══ DIRECTORY ══ -->
     <div id="v-directory">
       <div class="stats-banner" id="stats-banner"></div>
-      <div class="setup-banner" id="setup-banner">
+      <!-- Setup banner: only shown if live data fails to load AND user is admin -->
+      <div class="setup-banner hide" id="setup-banner">
         <span>📊</span>
-        <span><b>Using sample data.</b> Connect your Google Sheet to load real staff and SOP data. <a onclick="openSheetsModal()">Connect now →</a></span>
+        <span id="setup-banner-msg">Loading live data…</span>
         <span class="setup-dismiss" onclick="this.parentElement.classList.add('hide')">✕</span>
       </div>
       <div class="search-section">
@@ -673,18 +1272,30 @@ tbody td{padding:10px 11px;font-size:12px;}
 
     <!-- ══ ORG CHART ══ -->
     <div class="org-wrap" id="v-org">
-      <div class="org-toolbar">
-        <div class="admin-title">🌳 Org Chart</div>
-        <span class="org-hint">Click any person to see details</span>
+      <div class="org-inner-pad">
+        <div style="padding:22px 0 16px;border-bottom:1px solid var(--border);margin-bottom:20px;">
+          <div style="font-family:var(--display);font-size:18px;font-weight:700;margin-bottom:4px">Organisation Chart</div>
+          <div style="font-size:12px;color:var(--muted)">Reporting structure and hierarchy across all Delta Fitness departments. Click any node to view full profile.</div>
+        </div>
       </div>
       <div class="org-scroll" id="org-scroll"></div>
-      <div class="org-detail" id="org-detail"></div>
+      <div class="org-inner-pad">
+        <div class="org-detail" id="org-detail"></div>
+      </div>
     </div>
 
     <!-- ══ DASHBOARD ══ -->
     <div class="dash-wrap" id="v-dash">
-      <div class="dash-title">📊 Department Dashboard</div>
+      <div class="dash-page-header">
+        <div class="dash-page-title">Executive Dashboard</div>
+        <div class="dash-page-sub">Operational overview of Delta Fitness — staff structure, departmental distribution, and live status across all locations.</div>
+      </div>
+      <div id="dash-live-row"></div>
       <div class="kpi-row" id="kpi-row"></div>
+      <div class="dash-section-header">
+        <div class="dash-section-title">Operational Insights</div>
+        <div class="dash-section-sub" id="dash-updated"></div>
+      </div>
       <div class="dash-grid" id="dash-grid"></div>
     </div>
 
@@ -791,28 +1402,57 @@ tbody td{padding:10px 11px;font-size:12px;}
   </div>
 </div>
 
-<!-- GOOGLE SHEETS MODAL -->
+<!-- GOOGLE SHEETS MODAL — ADMIN ONLY -->
 <div class="overlay" id="gs-overlay">
-  <div class="modal" style="max-width:580px">
-    <div class="modal-header"><div class="modal-title">🔗 Connect Google Sheets</div><button class="modal-close" onclick="closeGS()">✕</button></div>
-    <div style="font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:14px">Connect two Google Sheets — one for Employees, one for SOPs. Both load automatically on every visit.</div>
-    <div style="background:var(--surface2);border-radius:9px;padding:12px 15px;margin-bottom:16px;font-size:12px;line-height:1.9;border:1px solid var(--border2)">
-      <b style="color:var(--accent)">Sheet setup:</b><br>
-      <b style="color:var(--text)">Sheet 1 — Employees:</b> headers: <code style="background:var(--surface3);padding:1px 6px;border-radius:3px;color:var(--accent);font-size:10px">id, fname, lname, title, dept, loc, phone, email, resp, ooo, managerId</code><br>
-      <b style="color:var(--text)">Sheet 2 — SOP:</b> headers: <code style="background:var(--surface3);padding:1px 6px;border-radius:3px;color:var(--accent);font-size:10px">department, sop_title, purpose, steps, documents, controls, escalation</code><br>
-      For each sheet: <b style="color:var(--text)">File → Share → Publish to web</b> → choose the correct sheet tab → Format: CSV → Publish. Each sheet gets its own URL. Paste below.
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <div class="modal-title">🔗 Data Sources <span style="font-size:10px;background:rgba(255,179,71,.15);color:var(--warn);border:1px solid rgba(255,179,71,.3);padding:2px 8px;border-radius:20px;margin-left:8px;font-family:var(--mono)">Admin Only</span></div>
+      <button class="modal-close" onclick="closeGS()">✕</button>
     </div>
-    <div class="form-group" style="margin-bottom:12px">
-      <label class="form-label">👥 Employees Sheet — Published CSV URL</label>
-      <input class="form-input" id="gs-url" placeholder="https://docs.google.com/spreadsheets/d/.../pub?gid=0&single=true&output=csv" style="font-size:11px;font-family:var(--mono)"/>
+
+    <div style="font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:16px">
+      Manage the live data sources for this portal. These URLs are only visible to admins.
+      Normal users see live data automatically without any setup.
     </div>
-    <div class="form-group" style="margin-bottom:12px">
-      <label class="form-label">📘 SOP Sheet — Published CSV URL</label>
-      <input class="form-input" id="gs-sop-url" placeholder="https://docs.google.com/spreadsheets/d/.../pub?gid=1&single=true&output=csv" style="font-size:11px;font-family:var(--mono)"/>
+
+    <!-- Current status row -->
+    <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:9px;padding:12px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+      <span id="gs-status-dot" style="width:8px;height:8px;border-radius:50%;background:var(--muted2);display:inline-block;flex-shrink:0"></span>
+      <div>
+        <div style="font-size:12px;font-weight:500" id="gs-status-text">Checking connection…</div>
+        <div style="font-size:10px;color:var(--muted2);margin-top:2px">Data loads automatically on page open for all users</div>
+      </div>
+      <button onclick="resetToDefaults()" style="margin-left:auto;font-size:10px;padding:3px 10px;border-radius:6px;border:1px solid var(--border2);background:none;color:var(--muted);cursor:pointer;font-family:var(--font)" title="Reset to default URLs">Reset defaults</button>
     </div>
+
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">👥 Employees Sheet — CSV URL</label>
+      <input class="form-input" id="gs-url"
+        placeholder="Uses default if empty"
+        style="font-size:11px;font-family:var(--mono)"/>
+      <div style="font-size:10px;color:var(--muted2);margin-top:4px">
+        Headers: id, fname, lname, title, dept, loc, phone, email, resp, ooo, managerId
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-bottom:16px">
+      <label class="form-label">📘 SOP Sheet — CSV URL</label>
+      <input class="form-input" id="gs-sop-url"
+        placeholder="Uses default if empty"
+        style="font-size:11px;font-family:var(--mono)"/>
+      <div style="font-size:10px;color:var(--muted2);margin-top:4px">
+        Headers: department, sop_title, purpose, steps, documents, controls, escalation
+      </div>
+    </div>
+
+    <div style="background:rgba(0,212,160,.06);border:1px solid rgba(0,212,160,.15);border-radius:8px;padding:10px 14px;font-size:11px;color:var(--muted);margin-bottom:16px;line-height:1.7">
+      💡 Leave fields empty to use the default hardcoded URLs. Custom URLs are saved only in your browser.
+      Other admins will still use the defaults unless they set their own.
+    </div>
+
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeGS()">Cancel</button>
-      <button class="btn btn-primary" id="gs-connect-btn" onclick="connectSheets()">Connect & Load Both</button>
+      <button class="btn btn-primary" id="gs-connect-btn" onclick="connectSheets()">Save & Connect</button>
     </div>
   </div>
 </div>
@@ -829,6 +1469,18 @@ const ADMINS=[
   {code:'DF-HR1',pass:'hr2024',  name:'HR Admin'},
   {code:'DF-OPS',pass:'ops2024', name:'Ops Manager'},
 ];
+
+/* ═══ DEFAULT DATA SOURCES ═══
+   These are the hardcoded fallback URLs.
+   Admins can override via the Sheets modal — overrides saved in localStorage.
+   Normal users never see these URLs.
+═══════════════════════════════════════ */
+const DEFAULT_EMP_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSup10l1-Yt8KqW_yMq5wruLfCGF1REeQs7eTYPNT2FAP-aBfsslFdK7VLyDQw2rKnzgtoG2Qdm2BW4/pub?output=csv';
+const DEFAULT_SOP_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSup10l1-Yt8KqW_yMq5wruLfCGF1REeQs7eTYPNT2FAP-aBfsslFdK7VLyDQw2rKnzgtoG2Qdm2BW4/pub?output=csv&gid=1';
+
+/* Resolve active URL: admin override first, then default */
+function getEmpURL(){ return localStorage.getItem('df_emp_url')||DEFAULT_EMP_URL; }
+function getSopURL(){ return localStorage.getItem('df_sop_url')||DEFAULT_SOP_URL; }
 
 const DEPT={
   'HR':          {cls:'d-hr',       icon:'👤',color:'#ff7090'},
@@ -888,7 +1540,13 @@ function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('col',collapsed);
   document.getElementById('main-area').classList.toggle('col',collapsed);
   const b=document.getElementById('toggle-btn');
-  b.textContent=collapsed?'▶':'◀';b.title=collapsed?'Expand':'Collapse';
+  b.textContent=collapsed?'▶':'◀';
+  b.title=collapsed?'Expand sidebar':'Collapse sidebar';
+  b.setAttribute('aria-label',collapsed?'Expand sidebar':'Collapse sidebar');
+  // persist preference
+  try{localStorage.setItem('df_sidebar_col',collapsed?'1':'');}catch(e){}
+  // hide tooltip immediately on toggle
+  hideNavTooltip();
 }
 
 /* ═══ LOGIN ═══ */
@@ -902,6 +1560,8 @@ function doLogin(){
     isAdmin=true;adminName=m.name;hideLogin();
     const lb=document.getElementById('logout-btn');lb.classList.add('vis');lb.textContent='🔒 '+m.name;
     goView('admin');toast('✅ Welcome, '+m.name);
+    // inject admin-only buttons now that user is verified
+    if(window._injectAdminButtons)window._injectAdminButtons();
   } else {
     document.getElementById('lerr').textContent='Incorrect code or password.';
     ['lc','lp'].forEach(id=>{const el=document.getElementById(id);el.classList.add('err');setTimeout(()=>el.classList.remove('err'),2000);});
@@ -1240,62 +1900,215 @@ function runSmart(){
 }
 
 /* ════════════════════════════════════
-   PHASE 2B — ORG CHART
+   ORG CHART — HIERARCHICAL SVG TREE
 ════════════════════════════════════ */
+
+/* Build tree from emps array using managerId */
 function buildTree(){
   const map={};
   emps.forEach(e=>map[e.id]={...e,children:[]});
   const roots=[];
   emps.forEach(e=>{
-    if(e.managerId&&map[e.managerId]){map[e.managerId].children.push(map[e.id]);}
-    else roots.push(map[e.id]);
+    if(e.managerId&&map[e.managerId]){
+      map[e.managerId].children.push(map[e.id]);
+    } else {
+      roots.push(map[e.id]);
+    }
   });
+  // Sort children: managers first, then alphabetically
+  function sortChildren(node){
+    node.children.sort((a,b)=>{
+      const am=a.title.toLowerCase().match(/manager|director|head|supervisor/)?1:0;
+      const bm=b.title.toLowerCase().match(/manager|director|head|supervisor/)?1:0;
+      if(bm!==am)return bm-am;
+      return a.fname.localeCompare(b.fname);
+    });
+    node.children.forEach(sortChildren);
+  }
+  roots.forEach(sortChildren);
   return roots;
 }
 
-function renderOrgNode(e,isRoot=false){
-  const k=dc(e.dept);
-  const ooo=e.ooo?`<span style="font-size:8px;color:var(--warn);position:absolute;top:-5px;right:-5px;background:var(--surface);border-radius:10px;padding:1px 4px;border:1px solid rgba(255,179,71,.4)">OOO</span>`:'' ;
-  return `<div class="org-node${isRoot?' mgmt':''} ${k}" onclick="showOrgDetail(${e.id})" style="position:relative">
-    ${ooo}
-    <div class="org-av avatar-color">${ini(e)}</div>
-    <div class="org-name">${e.fname} ${e.lname}</div>
-    <div class="org-job">${e.title}</div>
-    <span class="org-dept-dot" style="background:${dcolor(e.dept)}"></span>
-  </div>`;
+/* Assign depth level to each node */
+function assignLevels(nodes,level=0){
+  nodes.forEach(n=>{n._level=level;assignLevels(n.children,level+1);});
 }
 
-function renderOrgTree(nodes,level=0){
-  if(!nodes.length)return'';
-  if(nodes.length===1){
-    const node=nodes[0];
-    return `<div class="org-group">
-      ${renderOrgNode(node,level===0)}
-      ${node.children.length?`
-        <div class="org-connector-v"></div>
-        <div class="org-children-wrap">
-          <div class="org-children" style="position:relative">
-            ${node.children.length>1?`<div class="org-h-line"></div>`:''}
-            ${node.children.map(c=>`
-              <div class="org-child-col">
-                <div class="org-connector-v"></div>
-                ${renderOrgTree([c],level+1)}
-              </div>`).join('')}
-          </div>
-        </div>`:''}
-    </div>`;
-  }
-  return `<div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
-    ${nodes.map(n=>renderOrgTree([n],level)).join('')}
-  </div>`;
+/* NODE WIDTH constants (must match CSS) */
+const NODE_W=148, NODE_W_L0=176, NODE_H=114, V_GAP=52, H_PAD=14;
+
+/* Compute subtree width for layout */
+function subtreeWidth(node){
+  if(!node.children.length)return(node._level===0?NODE_W_L0:NODE_W)+H_PAD*2;
+  const childrenTotal=node.children.reduce((s,c)=>s+subtreeWidth(c),0);
+  const nodeW=(node._level===0?NODE_W_L0:NODE_W)+H_PAD*2;
+  return Math.max(nodeW,childrenTotal);
 }
 
+/* Assign x positions (center of each node) */
+function assignX(node,x){
+  node._x=x;
+  if(!node.children.length)return;
+  const total=node.children.reduce((s,c)=>s+subtreeWidth(c),0);
+  let cx=x-total/2;
+  node.children.forEach(c=>{
+    const w=subtreeWidth(c);
+    assignX(c,cx+w/2);
+    cx+=w;
+  });
+}
+
+/* Assign y positions per level */
+function assignY(node,y=0){
+  node._y=y;
+  node.children.forEach(c=>assignY(c,y+NODE_H+V_GAP));
+}
+
+/* Flatten tree to array */
+function flattenTree(node,arr=[]){
+  arr.push(node);
+  node.children.forEach(c=>flattenTree(c,arr));
+  return arr;
+}
+
+/* Compute canvas size */
+function canvasSize(nodes){
+  let maxX=0,maxY=0;
+  nodes.forEach(n=>{
+    const nw=n._level===0?NODE_W_L0:NODE_W;
+    maxX=Math.max(maxX,n._x+nw/2+H_PAD);
+    maxY=Math.max(maxY,n._y+NODE_H);
+  });
+  return{w:maxX*2,h:maxY+40};
+}
+
+/* Render SVG connector lines between nodes */
+function renderConnectors(nodes,minX){
+  let paths='';
+  nodes.forEach(parent=>{
+    if(!parent.children.length)return;
+    const px=(parent._x-minX)*1; // offset
+    const parentCX=px;
+    const parentBot=parent._y+NODE_H-12; // bottom of parent node
+    const childTop=parent.children[0]._y+8; // top of children level
+    const midY=parentBot+(childTop-parentBot)*0.5;
+
+    // Vertical line down from parent
+    paths+=`<path d="M${parentCX},${parentBot} L${parentCX},${midY}" class="org-line"/>`;
+
+    // Horizontal line spanning all children
+    if(parent.children.length>1){
+      const leftX=(parent.children[0]._x-minX);
+      const rightX=(parent.children[parent.children.length-1]._x-minX);
+      paths+=`<path d="M${leftX},${midY} L${rightX},${midY}" class="org-line"/>`;
+    }
+
+    // Vertical lines down to each child
+    parent.children.forEach(child=>{
+      const cx=(child._x-minX);
+      paths+=`<path d="M${cx},${midY} L${cx},${child._y+8}" class="org-line"/>`;
+    });
+  });
+  return paths;
+}
+
+/* Main render function */
 function renderOrg(){
   const roots=buildTree();
-  document.getElementById('org-scroll').innerHTML=`<div class="org-tree">${renderOrgTree(roots)}</div>`;
+  if(!roots.length){
+    document.getElementById('org-scroll').innerHTML=
+      '<div style="text-align:center;padding:60px;color:var(--muted)"><div style="font-size:36px;margin-bottom:12px">🌳</div><div>No hierarchy data yet.<br>Add employees with Manager ID in the Admin Panel.</div></div>';
+    document.getElementById('org-detail').classList.remove('vis');
+    return;
+  }
+
+  assignLevels(roots,0);
+
+  // Support multiple roots — wrap in virtual root if needed
+  let displayRoots=roots;
+  if(roots.length>1){
+    // multiple roots: lay them out side by side
+    let rootX=0;
+    roots.forEach(r=>{
+      assignY(r,0);
+      const w=subtreeWidth(r);
+      assignX(r,rootX+w/2);
+      rootX+=w;
+    });
+  } else {
+    assignY(roots[0],0);
+    const totalW=subtreeWidth(roots[0]);
+    assignX(roots[0],totalW/2);
+  }
+
+  const all=[];
+  displayRoots.forEach(r=>flattenTree(r,all));
+
+  // Find bounds
+  let minX=Infinity,maxX=-Infinity,maxY=0;
+  all.forEach(n=>{
+    const hw=(n._level===0?NODE_W_L0:NODE_W)/2;
+    minX=Math.min(minX,n._x-hw-H_PAD);
+    maxX=Math.max(maxX,n._x+hw+H_PAD);
+    maxY=Math.max(maxY,n._y+NODE_H);
+  });
+  const canvasW=maxX-minX+20;
+  const canvasH=maxY+60;
+  const offsetX=-minX+10;
+
+  // Build SVG paths
+  const svgPaths=renderConnectors(all,minX-10);
+
+  // Build node HTML
+  const nodesHtml=all.map(n=>{
+    const k=dc(n.dept);
+    const nw=n._level===0?NODE_W_L0:NODE_W;
+    const leftPx=(n._x-minX+10)-(nw/2);
+    const topPx=n._y;
+    const reportsCount=n.children.length;
+    const oooHtml=n.ooo?`<span class="org-ooo-label">OOO</span>`:'';
+    const reportsHtml=reportsCount>0?`<span class="org-reports-badge">${reportsCount} report${reportsCount>1?'s':''}</span>`:'';
+    const levelClass=n._level===0?'level-0':n._level===1?'level-1':n._level===2?'level-2':'';
+    const oooClass=n.ooo?'ooo-node':'';
+    return `<div class="org-node ${k} ${levelClass} ${oooClass}"
+      style="position:absolute;left:${leftPx}px;top:${topPx}px;width:${nw}px;"
+      onclick="showOrgDetail(${n.id})"
+      title="${n.fname} ${n.lname} — ${n.title}">
+      ${oooHtml}
+      <div class="org-av avatar-color">${ini(n)}</div>
+      <div class="org-name">${n.fname} ${n.lname}</div>
+      <div class="org-job">${n.title}</div>
+      <span class="org-dept-dot" style="background:${dcolor(n.dept)}"></span>
+      ${reportsHtml}
+    </div>`;
+  }).join('');
+
+  document.getElementById('org-scroll').innerHTML=`
+    <div class="org-canvas-wrap" style="width:${Math.max(canvasW,600)}px;height:${canvasH}px;margin:0;">
+      <svg class="org-svg" viewBox="0 0 ${Math.max(canvasW,600)} ${canvasH}"
+        xmlns="http://www.w3.org/2000/svg" style="position:absolute;top:0;left:0;width:100%;height:100%">
+        <style>
+          .org-line{fill:none;stroke:rgba(255,255,255,0.15);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+        </style>
+        ${svgPaths}
+      </svg>
+      ${nodesHtml}
+    </div>`;
   document.getElementById('org-detail').classList.remove('vis');
+
+  // Auto-center: scroll so the root node appears centered horizontally
+  requestAnimationFrame(()=>{
+    const sc=document.getElementById('org-scroll');
+    const cw=sc.scrollWidth;
+    const vw=sc.clientWidth;
+    if(cw>vw){
+      // scroll to center of canvas
+      sc.scrollLeft=Math.max(0,(cw-vw)/2);
+    }
+  });
 }
 
+/* Detail panel — unchanged logic, updated action buttons */
 function showOrgDetail(id){
   const e=emps.find(x=>x.id===id);if(!e)return;
   const k=dc(e.dept),dm=DEPT[e.dept]||DEPT.Management;
@@ -1307,19 +2120,24 @@ function showOrgDetail(id){
   det.innerHTML=`
     <div class="od-header">
       <div class="od-av ${k} avatar-color">${ini(e)}</div>
-      <div>
+      <div style="flex:1;min-width:0">
         <div class="od-name">${e.fname} ${e.lname}${e.ooo?` <span style="font-size:10px;color:var(--warn);background:rgba(255,179,71,.15);padding:2px 6px;border-radius:10px;margin-left:6px">✈️ OOO</span>`:''}</div>
-        <div class="od-job">${e.title} · <span class="dept-color ${k}" style="font-size:10px;padding:1px 6px;border-radius:10px">${dm.icon} ${e.dept}</span></div>
+        <div class="od-job">${e.title} · <span class="dept-color ${k}" style="font-size:10px;padding:1px 6px;border-radius:10px;display:inline-block;margin-top:3px">${dm.icon} ${e.dept}</span></div>
       </div>
-      <button onclick="document.getElementById('org-detail').classList.remove('vis')" style="margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px">✕</button>
+      <button onclick="document.getElementById('org-detail').classList.remove('vis')"
+        style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;flex-shrink:0;padding:0 4px" aria-label="Close">✕</button>
     </div>
     <div class="od-meta">
       <div class="od-field"><div class="od-label">Location</div><div class="od-value">📍 ${e.loc}</div></div>
       <div class="od-field"><div class="od-label">Phone</div><div class="od-value">${e.phone}</div></div>
       <div class="od-field"><div class="od-label">Reports to</div><div class="od-value">${mgr?mgr.fname+' '+mgr.lname:'—'}</div></div>
-      <div class="od-field"><div class="od-label">Direct reports</div><div class="od-value">${reports.length?reports.map(r=>r.fname).join(', '):'None'}</div></div>
+      <div class="od-field"><div class="od-label">Direct reports</div><div class="od-value">${reports.length?reports.map(r=>`${r.fname} ${r.lname}`).join(', '):'None'}</div></div>
     </div>
-    ${ra.length?`<div class="od-resp"><div class="od-resp-label">RESPONSIBILITIES</div><div class="od-resp-tags">${ra.map(r=>`<span class="od-resp-tag">${r}</span>`).join('')}</div></div>`:''}
+    ${ra.length?`
+    <div class="od-resp">
+      <div class="od-resp-label">RESPONSIBILITIES</div>
+      <div class="od-resp-tags">${ra.map(r=>`<span class="od-resp-tag">${r}</span>`).join('')}</div>
+    </div>`:''}
     <div class="od-actions">
       <button class="od-btn wa" onclick="window.open('https://wa.me/${wa}','_blank')">💬 WhatsApp</button>
       <button class="od-btn" onclick="window.location='tel:${e.phone}'">📞 Call</button>
@@ -1330,108 +2148,195 @@ function showOrgDetail(id){
   det.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
+
 /* ════════════════════════════════════
-   PHASE 2C — DASHBOARD
+   DASHBOARD — EXECUTIVE RENDER
 ════════════════════════════════════ */
 function renderDashboard(){
-  // KPIs
-  const ooo=emps.filter(e=>e.ooo).length;
-  const locs=new Set(emps.map(e=>e.loc)).size;
-  const depts=new Set(emps.map(e=>e.dept)).size;
-  const mgrs=emps.filter(e=>emps.some(x=>x.managerId===e.id)).length;
-  document.getElementById('kpi-row').innerHTML=`
-    <div class="kpi-card kpi-accent"><div class="kpi-icon">👥</div><div class="kpi-val">${emps.length}</div><div class="kpi-label">Total Employees</div></div>
-    <div class="kpi-card kpi-blue"><div class="kpi-icon">🏢</div><div class="kpi-val">${depts}</div><div class="kpi-label">Departments</div></div>
-    <div class="kpi-card kpi-green"><div class="kpi-icon">📍</div><div class="kpi-val">${locs}</div><div class="kpi-label">Cities</div></div>
-    <div class="kpi-card kpi-warn"><div class="kpi-icon">✈️</div><div class="kpi-val">${ooo}</div><div class="kpi-label">Out of Office</div></div>
-    <div class="kpi-card kpi-purple"><div class="kpi-icon">👔</div><div class="kpi-val">${mgrs}</div><div class="kpi-label">Managers</div></div>
-  `;
+  const ooo    = emps.filter(e=>e.ooo).length;
+  const locs   = new Set(emps.map(e=>e.loc)).size;
+  const depts  = new Set(emps.map(e=>e.dept)).size;
+  const mgrs   = emps.filter(e=>emps.some(x=>x.managerId===e.id)).length;
+  const isLive = !!localStorage.getItem('df_emp_url');
+  const now    = new Date();
+  const timeStr= now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
 
-  // By department
+  // ── Live status row ──
+  document.getElementById('dash-live-row').innerHTML=`
+    <div class="dash-live-card">
+      <span class="dash-live-icon">${isLive?'🟢':'📋'}</span>
+      <div>
+        <div class="dash-live-title">${isLive?'Live Data Connected':'Using Sample Data'}</div>
+        <div class="dash-live-sub">${isLive?'Syncing from Google Sheets — last refreshed at '+timeStr:'<a onclick="openSheetsModal()" style="color:var(--accent);cursor:pointer">Connect Google Sheets</a> to load real staff data'}</div>
+      </div>
+      <span class="dash-live-badge ${isLive?'live':'local'}">${isLive?'● LIVE':'LOCAL'}</span>
+    </div>`;
+
+  // ── KPI cards ──
+  document.getElementById('kpi-row').innerHTML=`
+    <div class="kpi-card kpi-accent">
+      <div class="kpi-top"><div class="kpi-icon-box">👥</div></div>
+      <div class="kpi-val">${emps.length}</div>
+      <div class="kpi-label">Total Staff</div>
+    </div>
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-top"><div class="kpi-icon-box">🏢</div></div>
+      <div class="kpi-val">${depts}</div>
+      <div class="kpi-label">Departments</div>
+    </div>
+    <div class="kpi-card kpi-green">
+      <div class="kpi-top"><div class="kpi-icon-box">📍</div></div>
+      <div class="kpi-val">${locs}</div>
+      <div class="kpi-label">Locations</div>
+    </div>
+    <div class="kpi-card kpi-purple">
+      <div class="kpi-top"><div class="kpi-icon-box">👔</div></div>
+      <div class="kpi-val">${mgrs}</div>
+      <div class="kpi-label">Managers</div>
+    </div>
+    <div class="kpi-card kpi-warn">
+      <div class="kpi-top"><div class="kpi-icon-box">✈️</div></div>
+      <div class="kpi-val">${ooo}</div>
+      <div class="kpi-label">Out of Office</div>
+    </div>`;
+
+  // ── Update timestamp ──
+  document.getElementById('dash-updated').textContent='Updated '+timeStr;
+
+  // ── By department (bar chart) ──
   const byDept={};
   emps.forEach(e=>{byDept[e.dept]=(byDept[e.dept]||0)+1;});
   const maxD=Math.max(...Object.values(byDept));
   const deptBars=Object.entries(byDept).sort((a,b)=>b[1]-a[1]).map(([d,n])=>{
     const pct=Math.round((n/maxD)*100);
-    const color=dcolor(d);
     return `<div class="bar-row">
       <div class="bar-label">${di(d)} ${d}</div>
-      <div class="bar-outer"><div class="bar-inner" style="width:${pct}%;background:${color}"></div></div>
+      <div class="bar-outer"><div class="bar-inner" style="width:${pct}%;background:${dcolor(d)}"></div></div>
       <div class="bar-count">${n}</div>
     </div>`;
   }).join('');
 
-  // By location
+  // ── By location ──
   const byLoc={};
   emps.forEach(e=>{byLoc[e.loc]=(byLoc[e.loc]||0)+1;});
   const locCards=Object.entries(byLoc).sort((a,b)=>b[1]-a[1]).map(([l,n])=>`
     <div class="loc-badge">
-      <div><div class="loc-num">${n}</div><div class="loc-name">${l}</div></div>
+      <div class="loc-num">${n}</div>
+      <div class="loc-name">📍 ${l}</div>
     </div>`).join('');
 
-  // Dept breakdown per city
+  // City breakdown
   const cities=[...new Set(emps.map(e=>e.loc))];
   const cityRows=cities.map(city=>{
     const cityEmps=emps.filter(e=>e.loc===city);
     const deptCounts={};
     cityEmps.forEach(e=>{deptCounts[e.dept]=(deptCounts[e.dept]||0)+1;});
-    const dots=Object.entries(deptCounts).map(([d,n])=>`
-      <span style="font-size:11px;background:${dcolor(d)}22;color:${dcolor(d)};border:1px solid ${dcolor(d)}44;padding:2px 7px;border-radius:10px;margin:2px">${di(d)} ${d}: ${n}</span>
-    `).join('');
-    return `<div style="margin-bottom:14px">
-      <div style="font-size:12px;font-weight:600;font-family:var(--display);margin-bottom:6px">📍 ${city} <span style="font-size:11px;color:var(--muted);font-weight:400">(${cityEmps.length} staff)</span></div>
-      <div style="display:flex;flex-wrap:wrap;gap:2px">${dots}</div>
+    const chips=Object.entries(deptCounts).map(([d,n])=>
+      `<span class="dept-chip" style="color:${dcolor(d)};border-color:${dcolor(d)}44;background:${dcolor(d)}11">${di(d)} ${d} <b>${n}</b></span>`
+    ).join('');
+    return `<div class="city-section">
+      <div class="city-name-row">
+        <span class="city-dot"></span>
+        <span>${city}</span>
+        <span class="city-count">${cityEmps.length} staff</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px">${chips}</div>
     </div>`;
   }).join('');
 
-  // OOO list
-  const oooList=emps.filter(e=>e.ooo).map(e=>`
-    <div style="display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--border)">
-      <div class="td-av ${dc(e.dept)} avatar-color" style="width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">${ini(e)}</div>
-      <div><div style="font-size:12px;font-weight:500">${e.fname} ${e.lname}</div><div style="font-size:10px;color:var(--muted)">${e.title} · ${e.dept}</div></div>
-    </div>`).join('') || `<div style="font-size:12px;color:var(--muted);padding:10px 0">Everyone is in the office ✅</div>`;
+  // ── OOO list ──
+  const oooEmps=emps.filter(e=>e.ooo);
+  const oooList=oooEmps.length
+    ? oooEmps.map(e=>`
+      <div class="ooo-row">
+        <div class="ooo-av ${dc(e.dept)} avatar-color">${ini(e)}</div>
+        <div>
+          <div class="ooo-name">${e.fname} ${e.lname}</div>
+          <div class="ooo-role">${e.title} · ${e.dept}</div>
+        </div>
+        <span class="ooo-status">✈️ Away</span>
+      </div>`).join('')
+    : `<div style="padding:16px 0;text-align:center;color:var(--muted);font-size:12px">
+        <div style="font-size:24px;margin-bottom:6px">✅</div>
+        All staff are currently in the office
+      </div>`;
 
+  // ── Department summary table ──
+  const summaryRows=Object.entries(byDept)
+    .sort((a,b)=>b[1]-a[1])
+    .map(([d,n])=>`
+      <div class="summary-row">
+        <div class="summary-dept">
+          <span class="summary-icon">${di(d)}</span>
+          <span>${d}</span>
+        </div>
+        <span class="summary-count" style="color:${dcolor(d)}">${n}</span>
+      </div>`).join('');
+
+  // ── Render grid ──
   document.getElementById('dash-grid').innerHTML=`
     <div class="dash-card">
-      <div class="dash-card-title">👥 Staff by Department</div>
+      <div class="dash-card-title">
+        <span class="dash-card-title-dot" style="background:var(--accent)"></span>
+        Staff by Department
+      </div>
       ${deptBars}
     </div>
     <div class="dash-card">
-      <div class="dash-card-title">📍 Staff by City</div>
-      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px">${locCards}</div>
+      <div class="dash-card-title">
+        <span class="dash-card-title-dot" style="background:var(--blue)"></span>
+        Staff by Location
+      </div>
+      <div class="loc-grid">${locCards}</div>
       ${cityRows}
     </div>
     <div class="dash-card">
-      <div class="dash-card-title">✈️ Out of Office</div>
+      <div class="dash-card-title">
+        <span class="dash-card-title-dot" style="background:var(--warn)"></span>
+        Out of Office
+      </div>
       ${oooList}
     </div>
     <div class="dash-card">
-      <div class="dash-card-title">📋 Department Summary</div>
-      ${Object.entries(byDept).map(([d,n])=>`
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)">
-          <span style="font-size:12px">${di(d)} ${d}</span>
-          <span style="font-family:var(--mono);font-size:12px;color:${dcolor(d)};font-weight:500">${n} staff</span>
-        </div>`).join('')}
-    </div>
-  `;
+      <div class="dash-card-title">
+        <span class="dash-card-title-dot" style="background:var(--purple)"></span>
+        Department Summary
+      </div>
+      ${summaryRows}
+    </div>`;
 }
 
 /* ═══ GOOGLE SHEETS ═══ */
-function openSheetsModal(){document.getElementById('gs-url').value=sheetsURL;const su=document.getElementById('gs-sop-url');if(su)su.value=sopURL;document.getElementById('gs-overlay').classList.add('open');}
+function openSheetsModal(){
+  if(!isAdmin){
+    toast('⚠️ Admin login required to manage data sources','var(--warn)');
+    return;
+  }
+  // Pre-fill with current active URLs (admin override or default)
+  const empEl=document.getElementById('gs-url');
+  const sopEl=document.getElementById('gs-sop-url');
+  if(empEl)empEl.value=localStorage.getItem('df_emp_url')||DEFAULT_EMP_URL;
+  if(sopEl)sopEl.value=localStorage.getItem('df_sop_url')||DEFAULT_SOP_URL;
+  document.getElementById('gs-overlay').classList.add('open');
+}
 function closeGS(){document.getElementById('gs-overlay').classList.remove('open');}
 async function connectSheets(){
+  if(!isAdmin){toast('⚠️ Admin access required','var(--warn)');return;}
   const btn=document.getElementById('gs-connect-btn');
-  if(btn){btn.textContent='Connecting…';btn.disabled=true;}
-  const url=document.getElementById('gs-url').value.trim();
-  if(!url){toast('⚠️ Enter a URL','var(--warn)');return;}
+  if(btn){btn.textContent='Saving…';btn.disabled=true;}
+  const empInput=(document.getElementById('gs-url').value||'').trim();
+  const sopInput=(document.getElementById('gs-sop-url').value||'').trim();
+  const empUrl=empInput||DEFAULT_EMP_URL;
+  const sopUrl=sopInput||DEFAULT_SOP_URL;
   toast('⏳ Connecting…','var(--blue)');
   try{
-    const res=await fetch(url);if(!res.ok)throw new Error();
+    const res=await fetch(empUrl);
+    if(!res.ok)throw new Error('HTTP '+res.status);
     const csv=await res.text();
     const objs=csvToObjects(csv);
     if(!objs.length)throw new Error('No data rows found');
-    const parsed=objs.map((o,i)=>({
-      id:parseInt(o.id)||i+1,
+    const parsed=objs.map((o,ix)=>({
+      id:parseInt(o.id)||ix+1,
       fname:o.fname||'',lname:o.lname||'',title:o.title||'',
       dept:o.dept||'',loc:o.loc||'',phone:o.phone||'',email:o.email||'',
       resp:o.resp||'',
@@ -1439,20 +2344,27 @@ async function connectSheets(){
       managerId:parseInt(o.managerid)||null
     }));
     if(!parsed.length)throw new Error('No valid employees found');
-    emps=parsed;nid=Math.max(...emps.map(e=>e.id))+1;
-    sheetsURL=url;
-    localStorage.setItem('df_emp_url',url);
+    emps=parsed;
+    nid=Math.max(...emps.map(e=>e.id))+1;
+    sheetsURL=empUrl;
+    // only persist custom overrides — empty = use default on next load
+    if(empInput)localStorage.setItem('df_emp_url',empInput);
+    else localStorage.removeItem('df_emp_url');
+    if(sopInput)localStorage.setItem('df_sop_url',sopInput);
+    else localStorage.removeItem('df_sop_url');
     closeGS();
     document.getElementById('cdot').classList.add('live');
     document.getElementById('clabel').textContent='🟢 Live · Google Sheets';
     document.getElementById('setup-banner').classList.add('hide');
     applyFilters();
-    // load SOP sheet if provided
-    const sopU=document.getElementById('gs-sop-url').value.trim();
-    if(sopU){sopURL=sopU;localStorage.setItem('df_sop_url',sopU);loadSopFromSheets(sopU);}
+    await loadSopFromSheets(sopUrl);
     toast('✅ '+parsed.length+' employees loaded');
-  }catch{toast('❌ Could not connect — check the URL and make sure the sheet is published as CSV.','var(--danger)');}
-  finally{if(btn){btn.textContent='Connect & Load Both';btn.disabled=false;}}
+  }catch(err){
+    console.error('connectSheets error:',err);
+    toast('❌ Could not connect — check URL and published settings.','var(--danger)');
+  }finally{
+    if(btn){btn.textContent='Save & Connect';btn.disabled=false;}
+  }
 }
 
 /* ═══ EXPORT CSV ═══ */
@@ -1802,52 +2714,179 @@ async function loadSopFromSheets(url){
   initViews();
   initSmartSearch();
   applyFilters();
-  // auto-reconnect from localStorage
-  const savedEmp=localStorage.getItem('df_emp_url');
-  const savedSop=localStorage.getItem('df_sop_url');
-  if(savedEmp){
+
+  /* ── Auto-load live data on every page visit ──
+     Uses admin-saved URL if available, otherwise DEFAULT_EMP_URL.
+     Normal users see live data immediately with zero setup.
+  ─────────────────────────────────────────────── */
+  async function loadEmployees(url){
     try{
-      const res=await fetch(savedEmp);
-      if(res.ok){
-        const csv=await res.text();
-        const rows=csv.split('\n').map(r=>r.split(',').map(c=>c.trim().replace(/^"|"$/g,'')));
-        const hdrs=rows[0].map(h=>h.toLowerCase().trim());
-        const parsed=rows.slice(1).filter(r=>r.length>1&&r[0]).map((r,i)=>{
-          const o={id:i+1};
-          hdrs.forEach((h,j)=>{
-            if(h==='ooo')o.ooo=r[j]==='true'||r[j]==='1'||r[j]==='yes';
-            else if(h==='id')o.id=parseInt(r[j])||i+1;
-            else if(h==='managerid')o.managerId=parseInt(r[j])||null;
-            else o[h]=r[j]||'';
-          });
-          return o;
-        });
-        if(parsed.length){
-          emps=parsed;nid=Math.max(...emps.map(e=>e.id))+1;
-          sheetsURL=savedEmp;
-          document.getElementById('cdot').classList.add('live');
-          document.getElementById('clabel').textContent='🟢 Live · Google Sheets';
-          document.getElementById('setup-banner').classList.add('hide');
-          applyFilters();toast('✅ Auto-synced: '+parsed.length+' employees');
-        }
-      }
-    }catch(e){}
+      const res=await fetch(url);
+      if(!res.ok)throw new Error('HTTP '+res.status);
+      const csv=await res.text();
+      const objs=csvToObjects(csv);
+      if(!objs.length)throw new Error('Empty sheet');
+      const parsed=objs.map((o,i)=>({
+        id:parseInt(o.id)||i+1,
+        fname:o.fname||'',lname:o.lname||'',title:o.title||'',
+        dept:o.dept||'',loc:o.loc||'',phone:o.phone||'',email:o.email||'',
+        resp:o.resp||'',
+        ooo:o.ooo==='true'||o.ooo==='1'||o.ooo==='yes',
+        managerId:parseInt(o.managerid)||null
+      }));
+      if(!parsed.length)throw new Error('No rows parsed');
+      emps=parsed;
+      nid=Math.max(...emps.map(e=>e.id))+1;
+      sheetsURL=url;
+      setLiveStatus(true);
+      applyFilters();
+      return parsed.length;
+    }catch(err){
+      console.warn('Employee sheet load failed:',err.message);
+      return 0;
+    }
   }
-  if(savedSop)await loadSopFromSheets(savedSop);
-  // Sync button in admin
-  const syncBtn=document.createElement('button');
-  syncBtn.className='btn-add';syncBtn.style.background='var(--blue)';syncBtn.style.fontFamily='var(--font)';
-  syncBtn.textContent='🔄 Sync from Sheets';
-  syncBtn.onclick=async()=>{
-    const eu=localStorage.getItem('df_emp_url');
-    const su=localStorage.getItem('df_sop_url');
-    if(!eu&&!su){toast('⚠️ Connect Google Sheets first','var(--warn)');return;}
-    if(eu){document.getElementById('gs-url').value=eu;await connectSheets();}
-    if(su)await loadSopFromSheets(su);
-  };
-  const ah=document.querySelector('.admin-header');
-  if(ah)ah.appendChild(syncBtn);
+
+  function setLiveStatus(live){
+    const dot=document.getElementById('cdot');
+    const lbl=document.getElementById('clabel');
+    const banner=document.getElementById('setup-banner');
+    if(dot)dot.classList.toggle('live',live);
+    if(lbl){
+      if(live){
+        lbl.innerHTML='🟢 Live · Google Sheets';
+      } else {
+        lbl.innerHTML='Sample data · <a onclick="if(isAdmin)openSheetsModal()" style="color:var(--accent);cursor:pointer">'+
+          (isAdmin?'Update Sheets':'Contact admin')+'</a>';
+      }
+    }
+    if(banner&&live)banner.classList.add('hide');
+  }
+
+  // Load employees — admin override URL takes priority over default
+  const empURL=getEmpURL();
+  const empLoaded=await loadEmployees(empURL);
+  if(!empLoaded){
+    // silently stay on sample data — no error shown to normal users
+    setLiveStatus(false);
+  }
+
+  // Load SOP data
+  await loadSopFromSheets(getSopURL());
+
+  /* ── Inject Sync + Settings buttons into Admin panel (admin only) ── */
+  function injectAdminButtons(){
+    const ah=document.querySelector('.admin-header');
+    if(!ah||ah.querySelector('.sync-btn'))return;
+
+    // Sync button
+    const syncBtn=document.createElement('button');
+    syncBtn.className='btn-add sync-btn';
+    syncBtn.style.cssText='background:var(--blue);font-family:var(--font)';
+    syncBtn.textContent='🔄 Sync Now';
+    syncBtn.onclick=async()=>{
+      syncBtn.textContent='Syncing…';syncBtn.disabled=true;
+      const loaded=await loadEmployees(getEmpURL());
+      await loadSopFromSheets(getSopURL());
+      syncBtn.textContent='🔄 Sync Now';syncBtn.disabled=false;
+      toast(loaded?'✅ Synced: '+loaded+' employees':'⚠️ Sync failed — check Sheets URLs','var(--accent)');
+    };
+    ah.appendChild(syncBtn);
+
+    // Data Sources button (admin only — shows URLs)
+    const dsBtn=document.createElement('button');
+    dsBtn.className='btn-add';
+    dsBtn.style.cssText='background:var(--surface2);color:var(--muted);border:1px solid var(--border2);font-family:var(--font)';
+    dsBtn.textContent='🔗 Data Sources';
+    dsBtn.onclick=openSheetsModal;
+    ah.appendChild(dsBtn);
+  }
+
+  // Buttons only injected after admin login (called from doLogin too)
+  window._injectAdminButtons=injectAdminButtons;
 })();
+
+/* ═══ SIDEBAR TOOLTIP (collapsed mode only) ═══ */
+(function(){
+  const tip=document.getElementById('nav-tooltip');
+  if(!tip)return;
+  let hideTimer=null;
+
+  function showNavTooltip(el){
+    if(!document.getElementById('sidebar').classList.contains('col'))return;
+    const label=el.getAttribute('data-tooltip');
+    if(!label)return;
+    clearTimeout(hideTimer);
+    const rect=el.getBoundingClientRect();
+    tip.textContent=label;
+    tip.style.top=(rect.top+rect.height/2)+'px';
+    tip.style.transform='translateY(-50%) translateX(0)';
+    tip.classList.add('visible');
+  }
+
+  window.hideNavTooltip=function(){
+    clearTimeout(hideTimer);
+    hideTimer=setTimeout(()=>tip.classList.remove('visible'),80);
+  };
+
+  // Attach to all nav items after DOM ready
+  function attachTooltips(){
+    document.querySelectorAll('.nav-item[data-tooltip]').forEach(el=>{
+      el.addEventListener('mouseenter',()=>showNavTooltip(el));
+      el.addEventListener('mouseleave',hideNavTooltip);
+      el.addEventListener('click',hideNavTooltip);
+    });
+  }
+  // Run after a short delay to ensure DOM is ready
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',attachTooltips);
+  } else {
+    attachTooltips();
+  }
+
+  // Restore sidebar collapsed state from localStorage
+  try{
+    if(localStorage.getItem('df_sidebar_col')==='1'){
+      collapsed=true;
+      document.getElementById('sidebar')?.classList.add('col');
+      document.getElementById('main-area')?.classList.add('col');
+      const b=document.getElementById('toggle-btn');
+      if(b){b.textContent='▶';b.title='Expand sidebar';}
+    }
+  }catch(e){}
+})();
+
+
+/* ═══ RESET TO DEFAULTS ═══ */
+function resetToDefaults(){
+  localStorage.removeItem('df_emp_url');
+  localStorage.removeItem('df_sop_url');
+  const empEl=document.getElementById('gs-url');
+  const sopEl=document.getElementById('gs-sop-url');
+  if(empEl)empEl.value='';
+  if(sopEl)sopEl.value='';
+  toast('✅ Reset to default URLs — reload to apply','var(--accent)');
+}
+
+/* Update GS modal status indicator when opened */
+const _origOpenGS=openSheetsModal;
+openSheetsModal=function(){
+  _origOpenGS();
+  // update status dot
+  const hasOverride=!!(localStorage.getItem('df_emp_url'));
+  const dot=document.getElementById('gs-status-dot');
+  const txt=document.getElementById('gs-status-text');
+  if(dot&&txt){
+    if(sheetsURL){
+      dot.style.background='var(--green)';
+      txt.textContent='Connected — live data loaded ('+(hasOverride?'custom URL':'default URL')+')';
+    } else {
+      dot.style.background='var(--warn)';
+      txt.textContent='Not connected — using sample data';
+    }
+  }
+};
+
 </script>
 </body>
 </html>
