@@ -1,0 +1,1853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Delta Fitness — Operations Portal</title>
+<meta name="description" content="Delta Fitness Internal Operations Portal — Staff Directory, SOP Manual, Smart Search, Task Ownership"/>
+<meta name="robots" content="noindex, nofollow"/>
+<meta name="theme-color" content="#0c0e14"/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💪</text></svg>"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap&font-display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:#0c0e14;--surface:#13161f;--surface2:#1a1e2e;--surface3:#1f2438;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.11);
+  --accent:#00d4a0;--accent-dim:rgba(0,212,160,0.1);
+  --blue:#3b9eff;--blue-dim:rgba(59,158,255,0.1);
+  --text:#eceef4;--muted:#7a829e;--muted2:#555d78;
+  --danger:#ff4d6d;--warn:#ffb347;--green:#4ade80;--purple:#a78bfa;
+  --font:'DM Sans',sans-serif;--display:'Syne',sans-serif;--mono:'DM Mono',monospace;
+  --sw:230px;--sc:62px;--r:12px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;font-size:14px;overflow-x:hidden;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+
+.app{display:flex;min-height:100vh;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sw);flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:200;transition:width .26s cubic-bezier(.4,0,.2,1),transform .26s cubic-bezier(.4,0,.2,1);overflow:hidden;}
+.sidebar.col{width:var(--sc);}
+@media(max-width:768px){.sidebar{transform:translateX(-100%);width:var(--sw)!important;}.sidebar.mob-open{transform:translateX(0);}}
+.mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:199;backdrop-filter:blur(3px);}
+.logo{padding:16px 14px 13px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;min-height:64px;flex-shrink:0;}
+.logo-mark{display:flex;align-items:center;gap:10px;overflow:hidden;}
+.logo-icon{width:32px;height:32px;min-width:32px;background:linear-gradient(135deg,var(--accent),#00a07a);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.logo-texts{overflow:hidden;white-space:nowrap;transition:opacity .2s,width .2s;}
+.sidebar.col .logo-texts{opacity:0;width:0;}
+.logo-name{font-family:var(--display);font-size:13px;font-weight:700;}
+.logo-sub{font-size:10px;color:var(--muted);font-family:var(--mono);}
+.toggle-btn{width:24px;height:24px;min-width:24px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .15s;flex-shrink:0;}
+.toggle-btn:hover{color:var(--text);border-color:var(--accent);}
+.sidebar.col .logo{justify-content:center;}
+.nav{padding:10px 8px;flex:1;overflow:hidden;}
+.nav-sec{font-size:9px;color:var(--muted2);font-family:var(--mono);letter-spacing:.1em;padding:9px 10px 3px;text-transform:uppercase;white-space:nowrap;transition:opacity .2s;}
+.sidebar.col .nav-sec{opacity:0;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;color:var(--muted);font-size:13px;transition:all .15s;margin-bottom:1px;white-space:nowrap;overflow:hidden;}
+.nav-item:hover{background:var(--surface2);color:var(--text);}
+.nav-item.active{background:var(--accent-dim);color:var(--accent);font-weight:500;}
+.nav-icon{font-size:15px;width:20px;min-width:20px;text-align:center;flex-shrink:0;}
+.nav-label{transition:opacity .2s;}
+.sidebar.col .nav-label{opacity:0;}
+.nav-badge{margin-left:auto;font-size:9px;padding:1px 6px;border-radius:20px;background:var(--accent-dim);color:var(--accent);font-family:var(--mono);transition:opacity .2s;}
+.sidebar.col .nav-badge{opacity:0;}
+.sidebar-footer{padding:11px 14px;border-top:1px solid var(--border);font-size:10px;color:var(--muted2);white-space:nowrap;overflow:hidden;transition:opacity .2s;flex-shrink:0;}
+.sidebar.col .sidebar-footer{opacity:0;}
+.cdot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--muted2);margin-right:5px;vertical-align:middle;}
+.cdot.live{background:var(--green);box-shadow:0 0 5px rgba(74,222,128,.5);}
+
+/* ── MAIN ── */
+.main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-height:100vh;transition:margin-left .26s cubic-bezier(.4,0,.2,1);}
+.main.col{margin-left:var(--sc);}
+@media(max-width:768px){.main,.main.col{margin-left:0!important;}}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:11px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;}
+.mob-btn{display:none;width:32px;height:32px;border-radius:7px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);cursor:pointer;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+@media(max-width:768px){.mob-btn{display:flex;}}
+.page-title{font-family:var(--display);font-size:15px;font-weight:600;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.stat-pill{background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--muted);font-family:var(--mono);}
+.stat-pill b{color:var(--accent);}
+.view-btn{background:var(--surface2);border:1px solid var(--border2);color:var(--muted);padding:4px 8px;border-radius:6px;cursor:pointer;font-size:13px;transition:all .15s;}
+.view-btn.active{border-color:var(--accent);color:var(--accent);background:var(--accent-dim);}
+.logout-btn{padding:4px 11px;border-radius:7px;border:1px solid var(--border2);background:none;color:var(--muted);font-size:11px;cursor:pointer;font-family:var(--font);display:none;align-items:center;gap:5px;transition:all .15s;white-space:nowrap;}
+.logout-btn:hover{border-color:var(--danger);color:var(--danger);}
+.logout-btn.vis{display:flex;}
+@media(max-width:600px){.stat-pill{display:none;}}
+
+/* ── SEARCH ── */
+.search-section{padding:16px 20px 0;}
+.search-box{display:flex;align-items:center;gap:10px;background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--r);padding:10px 15px;transition:border-color .15s,box-shadow .15s;}
+.search-box:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,212,160,.07);}
+.si{color:var(--muted);font-size:15px;flex-shrink:0;}
+.search-input{background:none;border:none;outline:none;color:var(--text);font-family:var(--font);font-size:14px;flex:1;min-width:0;}
+.search-input::placeholder{color:var(--muted);}
+.search-clear{background:var(--surface2);border:none;color:var(--muted);width:20px;height:20px;border-radius:50%;cursor:pointer;font-size:11px;display:none;align-items:center;justify-content:center;flex-shrink:0;}
+.search-clear.vis{display:flex;}
+
+/* ── FILTERS ── */
+.filters-wrap{padding:11px 20px;display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
+.fl{font-size:10px;color:var(--muted2);margin-right:2px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;}
+.chip{padding:4px 10px;border-radius:20px;border:1px solid var(--border2);background:var(--surface);color:var(--muted);font-size:11px;cursor:pointer;transition:all .15s;font-family:var(--font);}
+.chip:hover{border-color:var(--accent);color:var(--accent);}
+.chip.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent);font-weight:500;}
+.chip.loc.active{background:var(--blue-dim);border-color:var(--blue);color:var(--blue);}
+.chip.loc:hover{border-color:var(--blue);color:var(--blue);}
+.fdiv{width:1px;height:16px;background:var(--border);margin:0 2px;}
+
+/* ── GRID ── */
+.content-wrap{padding:4px 20px 40px;}
+.results-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.results-info{font-size:11px;color:var(--muted);font-family:var(--mono);}
+.results-info b{color:var(--accent);}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(275px,1fr));gap:11px;}
+@media(max-width:600px){.grid{grid-template-columns:1fr;}}
+
+/* ── CARD ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:17px;transition:border-color .2s,transform .18s,box-shadow .2s;position:relative;overflow:hidden;}
+.card-glow{position:absolute;top:0;left:0;right:0;height:1px;opacity:0;transition:opacity .2s;}
+.card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.25);}
+.card:hover .card-glow{opacity:1;}
+.card-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:13px;}
+.avatar{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:16px;font-weight:700;flex-shrink:0;}
+.card-info{flex:1;min-width:0;}
+.card-name{font-family:var(--display);font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.card-job{font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dept-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:2px 7px;border-radius:20px;margin-top:5px;font-weight:500;}
+.cdivider{border:none;border-top:1px solid var(--border);margin:11px 0;}
+.card-meta{display:flex;flex-direction:column;gap:5px;}
+.meta-row{display:flex;align-items:center;gap:7px;font-size:11px;}
+.meta-icon{font-size:11px;width:15px;text-align:center;flex-shrink:0;}
+.meta-val{color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
+.meta-lbl{color:var(--muted);font-size:10px;flex-shrink:0;min-width:32px;}
+.resp-tags{display:flex;flex-wrap:wrap;gap:3px;margin-top:9px;}
+.resp-tag{font-size:10px;padding:2px 6px;border-radius:4px;background:var(--surface2);border:1px solid var(--border2);color:var(--muted);font-family:var(--mono);}
+.resp-tag.highlight{background:rgba(0,212,160,.12);border-color:rgba(0,212,160,.3);color:var(--accent);}
+.card-actions{display:flex;gap:4px;margin-top:11px;}
+.abtn{flex:1;padding:6px 5px;border-radius:7px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);font-size:10px;cursor:pointer;font-family:var(--font);transition:all .15s;display:flex;align-items:center;justify-content:center;gap:3px;}
+.abtn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-dim);}
+.abtn.wa:hover{border-color:#25d366;color:#25d366;background:rgba(37,211,102,.1);}
+.abtn.edit:hover{border-color:var(--warn);color:var(--warn);background:rgba(255,179,71,.1);}
+.ooo-badge{position:absolute;top:12px;right:12px;font-size:9px;padding:2px 6px;border-radius:20px;background:rgba(255,179,71,.15);color:var(--warn);border:1px solid rgba(255,179,71,.3);font-family:var(--mono);}
+
+/* ── MATCH SCORE ── */
+.match-score{position:absolute;top:12px;right:12px;font-size:9px;padding:2px 8px;border-radius:20px;background:rgba(0,212,160,.15);color:var(--accent);border:1px solid rgba(0,212,160,.3);font-family:var(--mono);font-weight:500;}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:50px 20px;color:var(--muted);display:none;}
+.empty.vis{display:block;}
+
+/* ── LIST ── */
+.list-wrap{padding:4px 20px 40px;overflow-x:auto;}
+table{width:100%;border-collapse:collapse;min-width:580px;}
+thead th{text-align:left;padding:8px 11px;font-size:10px;color:var(--muted2);font-weight:500;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border);font-family:var(--mono);}
+tbody tr{border-bottom:1px solid var(--border);transition:background .12s;cursor:pointer;}
+tbody tr:hover{background:var(--surface2);}
+tbody td{padding:10px 11px;font-size:12px;}
+.td-name{display:flex;align-items:center;gap:8px;}
+.td-av{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;font-family:var(--display);}
+.td-badge{display:inline-block;font-size:9px;padding:2px 6px;border-radius:20px;font-weight:500;}
+.td-acts{display:flex;gap:4px;}
+.tbl-btn{padding:3px 8px;border-radius:5px;border:1px solid var(--border2);background:none;color:var(--muted);font-size:10px;cursor:pointer;font-family:var(--font);transition:all .15s;}
+.tbl-btn:hover{color:var(--text);}
+.tbl-btn.del:hover{color:var(--danger);border-color:var(--danger);}
+
+/* ── ADMIN ── */
+.admin-wrap{padding:16px 20px 40px;display:none;}
+.admin-wrap.active{display:block;}
+.admin-header{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+.admin-title{font-family:var(--display);font-size:15px;font-weight:600;}
+.btn-add{padding:7px 15px;border-radius:8px;background:var(--accent);color:#0c0e14;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--display);transition:opacity .15s;}
+.btn-add:hover{opacity:.88;}
+
+/* ── VIEWS ── */
+.vgrid{display:none;}.vgrid.active{display:block;}
+.vlist{display:none;}.vlist.active{display:block;}
+
+/* ══════════════════════════════
+   PHASE 2 — SMART SEARCH VIEW
+══════════════════════════════ */
+.smart-wrap{padding:16px 20px 40px;display:none;}
+.smart-wrap.active{display:block;}
+.smart-title{font-family:var(--display);font-size:15px;font-weight:600;margin-bottom:4px;}
+.smart-sub{font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.5;}
+.smart-search-box{display:flex;align-items:center;gap:10px;background:var(--surface);border:1.5px solid var(--accent);border-radius:var(--r);padding:12px 16px;margin-bottom:14px;box-shadow:0 0 0 3px rgba(0,212,160,.07);}
+.smart-input{background:none;border:none;outline:none;color:var(--text);font-family:var(--font);font-size:15px;flex:1;}
+.smart-input::placeholder{color:var(--muted);}
+.smart-btn{padding:7px 16px;border-radius:8px;background:var(--accent);color:#0c0e14;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--display);transition:opacity .15s;white-space:nowrap;}
+.smart-btn:hover{opacity:.88;}
+.quick-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
+.qchip{padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);font-size:11px;cursor:pointer;transition:all .15s;}
+.qchip:hover{border-color:var(--accent);color:var(--accent);}
+.smart-results{display:flex;flex-direction:column;gap:10px;}
+.smart-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;align-items:center;gap:14px;transition:border-color .15s,transform .15s;cursor:default;}
+.smart-card:hover{border-color:var(--border2);transform:translateX(3px);}
+.smart-rank{font-family:var(--display);font-size:22px;font-weight:700;color:var(--muted2);width:28px;text-align:center;flex-shrink:0;}
+.smart-rank.top{color:var(--accent);}
+.smart-av{width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:16px;font-weight:700;flex-shrink:0;}
+.smart-info{flex:1;min-width:0;}
+.smart-name{font-family:var(--display);font-size:14px;font-weight:600;}
+.smart-job{font-size:11px;color:var(--muted);margin-top:1px;}
+.smart-match-tags{display:flex;flex-wrap:wrap;gap:3px;margin-top:6px;}
+.smart-match-tag{font-size:10px;padding:2px 7px;border-radius:4px;background:rgba(0,212,160,.12);border:1px solid rgba(0,212,160,.25);color:var(--accent);font-family:var(--mono);}
+.smart-score-bar{width:80px;flex-shrink:0;text-align:right;}
+.smart-score-num{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:500;}
+.smart-score-label{font-size:10px;color:var(--muted);margin-top:1px;}
+.smart-bar-outer{height:4px;background:var(--surface3);border-radius:2px;margin-top:4px;overflow:hidden;}
+.smart-bar-inner{height:100%;background:var(--accent);border-radius:2px;transition:width .5s ease;}
+.smart-acts{display:flex;flex-direction:column;gap:4px;flex-shrink:0;}
+.smart-act-btn{padding:5px 10px;border-radius:7px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);font-size:10px;cursor:pointer;font-family:var(--font);transition:all .15s;white-space:nowrap;}
+.smart-act-btn:hover{border-color:var(--accent);color:var(--accent);}
+.smart-act-btn.wa:hover{border-color:#25d366;color:#25d366;}
+.smart-empty{text-align:center;padding:40px 20px;color:var(--muted);}
+.smart-empty-icon{font-size:36px;margin-bottom:10px;}
+
+/* ══════════════════════════════
+   PHASE 2 — ORG CHART
+══════════════════════════════ */
+.org-wrap{padding:16px 20px 40px;display:none;}
+.org-wrap.active{display:block;}
+.org-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.org-title{font-family:var(--display);font-size:15px;font-weight:600;}
+.org-hint{font-size:11px;color:var(--muted);margin-left:auto;}
+.org-scroll{overflow-x:auto;padding-bottom:20px;}
+.org-tree{display:inline-flex;flex-direction:column;align-items:center;min-width:100%;}
+.org-level{display:flex;align-items:flex-start;justify-content:center;gap:0;position:relative;padding:0 10px;}
+.org-group{display:flex;flex-direction:column;align-items:center;}
+.org-node{background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:10px 14px;cursor:pointer;transition:all .2s;text-align:center;width:140px;margin:0 6px;flex-shrink:0;position:relative;}
+.org-node:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.25);}
+.org-node.mgmt{border-color:rgba(0,212,160,.3);background:rgba(0,212,160,.05);}
+.org-av{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:13px;font-weight:700;margin:0 auto 6px;}
+.org-name{font-size:11px;font-weight:600;font-family:var(--display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.org-job{font-size:9px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.org-dept-dot{width:6px;height:6px;border-radius:50%;margin:4px auto 0;display:block;}
+.org-connector-v{width:1px;height:20px;background:var(--border2);margin:0 auto;}
+.org-connector-h{height:1px;background:var(--border2);position:absolute;top:0;}
+.org-children-wrap{display:flex;flex-direction:column;align-items:center;}
+.org-children{display:flex;align-items:flex-start;justify-content:center;position:relative;}
+.org-h-line{position:absolute;top:0;left:0;right:0;height:1px;background:var(--border2);}
+.org-child-col{display:flex;flex-direction:column;align-items:center;margin:0 6px;}
+
+/* ── ORG DETAIL PANEL ── */
+.org-detail{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:16px;margin-top:16px;display:none;animation:fadeIn .2s ease;}
+.org-detail.vis{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.od-header{display:flex;align-items:center;gap:13px;margin-bottom:13px;}
+.od-av{width:48px;height:48px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:18px;font-weight:700;flex-shrink:0;}
+.od-name{font-family:var(--display);font-size:16px;font-weight:700;}
+.od-job{font-size:12px;color:var(--muted);margin-top:2px;}
+.od-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.od-field{background:var(--surface2);border-radius:8px;padding:8px 11px;}
+.od-label{font-size:9px;color:var(--muted2);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;}
+.od-value{font-size:12px;color:var(--text);margin-top:2px;}
+.od-resp{margin-top:2px;}
+.od-resp-label{font-size:10px;color:var(--muted);margin-bottom:6px;font-family:var(--mono);}
+.od-resp-tags{display:flex;flex-wrap:wrap;gap:4px;}
+.od-resp-tag{font-size:10px;padding:2px 7px;border-radius:4px;background:var(--surface2);border:1px solid var(--border2);color:var(--muted);font-family:var(--mono);}
+.od-actions{display:flex;gap:6px;margin-top:12px;}
+.od-btn{flex:1;padding:8px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);font-size:11px;cursor:pointer;font-family:var(--font);transition:all .15s;text-align:center;}
+.od-btn:hover{border-color:var(--blue);color:var(--blue);}
+.od-btn.wa:hover{border-color:#25d366;color:#25d366;}
+
+/* ══════════════════════════════
+   PHASE 2 — DASHBOARD
+══════════════════════════════ */
+.dash-wrap{padding:16px 20px 40px;display:none;}
+.dash-wrap.active{display:block;}
+.dash-title{font-family:var(--display);font-size:15px;font-weight:600;margin-bottom:16px;}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:20px;}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:14px 16px;position:relative;overflow:hidden;}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.kpi-val{font-family:var(--display);font-size:26px;font-weight:700;line-height:1;}
+.kpi-label{font-size:11px;color:var(--muted);margin-top:4px;}
+.kpi-icon{position:absolute;top:12px;right:14px;font-size:22px;opacity:.25;}
+.kpi-green::before{background:var(--green);}
+.kpi-blue::before{background:var(--blue);}
+.kpi-accent::before{background:var(--accent);}
+.kpi-warn::before{background:var(--warn);}
+.kpi-purple::before{background:var(--purple);}
+
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+@media(max-width:700px){.dash-grid{grid-template-columns:1fr;}}
+.dash-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:16px;}
+.dash-card-title{font-family:var(--display);font-size:13px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+.dash-card.full{grid-column:1/-1;}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+.bar-label{font-size:11px;color:var(--muted);width:100px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bar-outer{flex:1;height:8px;background:var(--surface3);border-radius:4px;overflow:hidden;}
+.bar-inner{height:100%;border-radius:4px;transition:width .6s ease;}
+.bar-count{font-size:11px;font-family:var(--mono);color:var(--muted);width:20px;text-align:right;flex-shrink:0;}
+.loc-badge{display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;margin:4px;font-size:12px;}
+.loc-num{font-family:var(--display);font-size:18px;font-weight:700;color:var(--accent);}
+.loc-name{font-size:11px;color:var(--muted);margin-top:1px;}
+.donut-wrap{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.donut-legend{display:flex;flex-direction:column;gap:6px;flex:1;}
+.donut-legend-item{display:flex;align-items:center;gap:7px;font-size:11px;}
+.donut-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* ── LOGIN ── */
+.login-screen{position:fixed;inset:0;z-index:400;background:rgba(12,14,20,.97);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);}
+.login-screen.hide{display:none;}
+.login-card{background:var(--surface);border:1px solid var(--border2);border-radius:18px;padding:34px 30px 26px;width:100%;max-width:380px;animation:fadeUp .3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+@media(max-width:440px){.login-card{margin:14px;padding:26px 20px 20px;}}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:24px;}
+.login-logo-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--accent),#00a07a);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.login-logo-name{font-family:var(--display);font-size:15px;font-weight:700;}
+.login-logo-sub{font-size:11px;color:var(--muted);font-family:var(--mono);}
+.login-title{font-family:var(--display);font-size:19px;font-weight:700;margin-bottom:5px;}
+.login-sub{font-size:12px;color:var(--muted);margin-bottom:20px;line-height:1.5;}
+.login-field{margin-bottom:12px;}
+.login-label{font-size:10px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px;font-family:var(--mono);}
+.login-input{width:100%;background:var(--surface2);border:1.5px solid var(--border2);border-radius:8px;padding:10px 13px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;transition:border-color .15s;}
+.login-input:focus{border-color:var(--accent);}
+.login-input.err{border-color:var(--danger)!important;animation:shake .3s ease;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}75%{transform:translateX(5px);}}
+.login-btn{width:100%;padding:11px;border-radius:9px;background:var(--accent);color:#0c0e14;font-family:var(--display);font-size:14px;font-weight:700;cursor:pointer;border:none;margin-top:4px;transition:opacity .15s;}
+.login-btn:hover{opacity:.88;}
+.login-error{font-size:12px;color:var(--danger);text-align:center;margin-top:9px;min-height:16px;}
+.login-hint{font-size:11px;color:var(--muted2);text-align:center;margin-top:14px;font-family:var(--mono);border-top:1px solid var(--border);padding-top:13px;line-height:1.7;}
+.login-hint b{color:var(--accent);}
+.back-link{font-size:12px;color:var(--muted);text-align:center;margin-top:10px;cursor:pointer;transition:color .15s;}
+.back-link:hover{color:var(--text);}
+
+/* ── MODAL ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:14px;}
+.overlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:15px;width:100%;max-width:530px;max-height:90vh;overflow-y:auto;padding:22px;animation:slideUp .2s ease;}
+@keyframes slideUp{from{transform:translateY(12px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.modal-title{font-family:var(--display);font-size:15px;font-weight:600;}
+.modal-close{width:26px;height:26px;border-radius:7px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;}
+.modal-close:hover{color:var(--text);}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:500px){.form-grid{grid-template-columns:1fr;}}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-group.full{grid-column:1/-1;}
+.form-label{font-size:10px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);}
+.form-input,.form-select{background:var(--surface2);border:1.5px solid var(--border2);border-radius:8px;padding:8px 11px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;transition:border-color .15s;width:100%;}
+.form-input:focus,.form-select:focus{border-color:var(--accent);}
+.form-select option{background:var(--surface2);}
+.form-textarea{resize:vertical;min-height:68px;}
+.modal-footer{display:flex;gap:9px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid var(--border);}
+.btn{padding:8px 18px;border-radius:8px;font-family:var(--display);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;border:none;}
+.btn-ghost{background:var(--surface2);color:var(--muted);border:1px solid var(--border2);}
+.btn-ghost:hover{color:var(--text);}
+.btn-primary{background:var(--accent);color:#0c0e14;}
+.btn-primary:hover{opacity:.88;}
+.btn-danger{background:transparent;color:var(--danger);border:1px solid var(--danger);}
+.btn-danger:hover{background:rgba(255,77,109,.1);}
+.confirm-modal{max-width:350px;text-align:center;}
+.confirm-icon{font-size:36px;margin-bottom:10px;}
+.confirm-msg{color:var(--muted);font-size:12px;margin-top:5px;line-height:1.5;}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;}
+.toggle-label{font-size:12px;color:var(--text);}
+.toggle-sub{font-size:10px;color:var(--muted);}
+.toggle-sw{position:relative;width:34px;height:18px;flex-shrink:0;}
+.toggle-sw input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-track{position:absolute;inset:0;background:var(--surface3);border-radius:9px;border:1px solid var(--border2);transition:background .2s;}
+.toggle-sw input:checked + .toggle-track{background:var(--accent);border-color:var(--accent);}
+.toggle-knob{position:absolute;top:2px;left:2px;width:12px;height:12px;background:#fff;border-radius:50%;transition:transform .2s;pointer-events:none;}
+.toggle-sw input:checked ~ .toggle-knob{transform:translateX(16px);}
+
+/* ── STATS BANNER ── */
+.stats-banner{display:flex;gap:8px;flex-wrap:wrap;padding:12px 20px 0;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:9px 13px;display:flex;align-items:center;gap:9px;flex:1;min-width:110px;}
+.stat-icon{font-size:18px;}
+.stat-num{font-family:var(--display);font-size:17px;font-weight:700;line-height:1;}
+.stat-lbl{font-size:9px;color:var(--muted);margin-top:1px;}
+
+/* ── SETUP BANNER ── */
+.setup-banner{margin:12px 20px 0;background:rgba(59,158,255,.07);border:1px solid rgba(59,158,255,.18);border-radius:9px;padding:10px 14px;font-size:11px;color:var(--blue);display:flex;align-items:flex-start;gap:9px;line-height:1.6;}
+.setup-banner.hide{display:none;}
+.setup-banner a{color:var(--accent);text-decoration:underline;cursor:pointer;}
+.setup-dismiss{margin-left:auto;cursor:pointer;opacity:.6;font-size:13px;flex-shrink:0;}
+.setup-dismiss:hover{opacity:1;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:18px;right:18px;background:var(--surface);border:1px solid var(--accent);border-radius:9px;padding:10px 15px;font-size:12px;color:var(--accent);z-index:999;transform:translateY(14px);opacity:0;transition:all .25s;pointer-events:none;max-width:270px;}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* ── DEPT COLORS ── */
+.d-hr      {--dc:#ff7090;--db:rgba(255,112,144,.14);}
+.d-finance {--dc:#4db8ff;--db:rgba(77,184,255,.14);}
+.d-maint   {--dc:#ffb347;--db:rgba(255,179,71,.14);}
+.d-sales   {--dc:#00c896;--db:rgba(0,200,150,.14);}
+.d-supply  {--dc:#c47aff;--db:rgba(196,122,255,.14);}
+.d-marketing{--dc:#ff9060;--db:rgba(255,144,96,.14);}
+.d-it      {--dc:#50c8ff;--db:rgba(80,200,255,.14);}
+.d-mgmt    {--dc:#a0a8c0;--db:rgba(160,168,192,.14);}
+.dept-color{background:var(--db);color:var(--dc);}
+.avatar-color{background:var(--db);color:var(--dc);}
+.glow-color{background:var(--dc);}
+
+/* ══════════════════════════════
+   SOP MODULE STYLES
+══════════════════════════════ */
+.sop-wrap{padding:16px 20px 40px;display:none;}
+.sop-wrap.active{display:block;}
+.sop-page-title{font-family:var(--display);font-size:15px;font-weight:600;margin-bottom:4px;}
+.sop-page-sub{font-size:12px;color:var(--muted);margin-bottom:20px;line-height:1.5;}
+
+/* Dept cards grid */
+.sop-dept-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:28px;}
+@media(max-width:600px){.sop-dept-grid{grid-template-columns:1fr;}}
+.sop-dept-card{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:18px;cursor:pointer;transition:border-color .2s,transform .18s,box-shadow .2s;position:relative;overflow:hidden;}
+.sop-dept-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:0;transition:opacity .2s;}
+.sop-dept-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 8px 26px rgba(0,0,0,.22);}
+.sop-dept-card:hover::before{opacity:1;}
+.sop-dept-icon{font-size:28px;margin-bottom:10px;}
+.sop-dept-name{font-family:var(--display);font-size:14px;font-weight:600;margin-bottom:4px;}
+.sop-dept-desc{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:10px;}
+.sop-dept-footer{display:flex;align-items:center;justify-content:space-between;}
+.sop-count-badge{font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:20px;background:var(--accent-dim);color:var(--accent);border:1px solid rgba(0,212,160,.2);}
+.sop-open-btn{font-size:10px;color:var(--muted);transition:color .15s;}
+.sop-dept-card:hover .sop-open-btn{color:var(--accent);}
+
+/* Detail panel */
+.sop-detail{display:none;animation:fadeIn .2s ease;}
+.sop-detail.vis{display:block;}
+.sop-detail-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+.sop-back-btn{padding:5px 12px;border-radius:7px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);font-size:11px;cursor:pointer;font-family:var(--font);transition:all .15s;}
+.sop-back-btn:hover{color:var(--text);border-color:var(--border2);}
+.sop-detail-title{font-family:var(--display);font-size:16px;font-weight:700;}
+.sop-detail-sub{font-size:11px;color:var(--muted);}
+.sop-search-row{display:flex;align-items:center;gap:8px;background:var(--surface);border:1.5px solid var(--border2);border-radius:10px;padding:8px 14px;margin-bottom:16px;}
+.sop-search-row:focus-within{border-color:var(--accent);}
+.sop-search-in{background:none;border:none;outline:none;color:var(--text);font-family:var(--font);font-size:13px;flex:1;}
+.sop-search-in::placeholder{color:var(--muted);}
+
+/* Accordion */
+.sop-accordion{display:flex;flex-direction:column;gap:8px;}
+.sop-item{background:var(--surface);border:1px solid var(--border);border-radius:11px;overflow:hidden;transition:border-color .2s;}
+.sop-item.open{border-color:var(--border2);}
+.sop-item-header{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;transition:background .15s;}
+.sop-item-header:hover{background:var(--surface2);}
+.sop-item-num{font-family:var(--mono);font-size:10px;color:var(--muted2);width:28px;flex-shrink:0;}
+.sop-item-title{font-family:var(--display);font-size:13px;font-weight:600;flex:1;}
+.sop-item-resp{font-size:10px;padding:2px 8px;border-radius:20px;background:var(--accent-dim);color:var(--accent);font-family:var(--mono);flex-shrink:0;}
+.sop-item-chevron{color:var(--muted);font-size:11px;transition:transform .2s;flex-shrink:0;}
+.sop-item.open .sop-item-chevron{transform:rotate(90deg);}
+.sop-item-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border);}
+.sop-item.open .sop-item-body{display:block;}
+
+/* Body sections */
+.sop-section{margin-top:14px;}
+.sop-section-label{font-size:9px;color:var(--muted2);font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;}
+.sop-purpose{font-size:12px;color:var(--muted);line-height:1.6;background:var(--surface2);border-radius:7px;padding:10px 12px;border-left:2px solid var(--accent);}
+.sop-steps{display:flex;flex-direction:column;gap:6px;}
+.sop-step{display:flex;gap:10px;align-items:flex-start;}
+.sop-step-num{width:20px;height:20px;border-radius:50%;background:var(--accent-dim);color:var(--accent);font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;font-family:var(--mono);}
+.sop-step-text{font-size:12px;color:var(--text);line-height:1.6;flex:1;}
+.sop-tags-row{display:flex;flex-wrap:wrap;gap:4px;}
+.sop-tag{font-size:10px;padding:2px 8px;border-radius:4px;background:var(--surface2);border:1px solid var(--border2);color:var(--muted);font-family:var(--mono);}
+.sop-tag.doc{border-color:rgba(59,158,255,.25);color:var(--blue);background:rgba(59,158,255,.08);}
+.sop-tag.ctrl{border-color:rgba(255,179,71,.25);color:var(--warn);background:rgba(255,179,71,.08);}
+.sop-tag.esc{border-color:rgba(255,77,109,.25);color:var(--danger);background:rgba(255,77,109,.08);}
+.sop-linked-emp{display:flex;align-items:center;gap:8px;background:var(--surface2);border-radius:8px;padding:9px 12px;margin-top:8px;cursor:pointer;border:1px solid var(--border);transition:border-color .15s;}
+.sop-linked-emp:hover{border-color:var(--accent);}
+.sop-linked-av{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:var(--display);flex-shrink:0;}
+.sop-linked-info{flex:1;}
+.sop-linked-name{font-size:12px;font-weight:500;}
+.sop-linked-role{font-size:10px;color:var(--muted);}
+.sop-linked-wa{font-size:10px;padding:3px 8px;border-radius:6px;border:1px solid rgba(37,211,102,.3);color:#25d366;background:rgba(37,211,102,.08);cursor:pointer;transition:all .15s;font-family:var(--font);}
+.sop-linked-wa:hover{background:rgba(37,211,102,.15);}
+
+/* Smart search SOP link */
+.smart-sop-link{font-size:10px;padding:4px 10px;border-radius:6px;border:1px solid rgba(0,212,160,.25);color:var(--accent);background:var(--accent-dim);cursor:pointer;transition:all .15s;white-space:nowrap;margin-top:4px;}
+.smart-sop-link:hover{background:rgba(0,212,160,.2);}
+
+
+/* ═══ TASK OWNERSHIP ═══ */
+.tm-wrap{padding:16px 20px 40px;display:none;}
+.tm-wrap.active{display:block;}
+.tm-header{font-family:var(--display);font-size:15px;font-weight:600;margin-bottom:4px;}
+.tm-sub{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.5;}
+.tm-search-row{display:flex;align-items:center;gap:10px;background:var(--surface);border:1.5px solid var(--border2);border-radius:10px;padding:9px 14px;margin-bottom:12px;}
+.tm-search-row:focus-within{border-color:var(--accent);}
+.tm-search-in{background:none;border:none;outline:none;color:var(--text);font-family:var(--font);font-size:13px;flex:1;}
+.tm-search-in::placeholder{color:var(--muted);}
+.tm-table{background:var(--surface);border:1px solid var(--border);border-radius:11px;overflow:hidden;}
+.tm-row{display:grid;grid-template-columns:2fr 1fr 2fr auto;gap:12px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .13s;}
+.tm-row:last-child{border-bottom:none;}
+.tm-row:hover{background:var(--surface2);}
+@media(max-width:640px){.tm-row{grid-template-columns:1fr;gap:6px;}.tm-dept,.tm-sop{display:flex;align-items:center;}}
+.tm-task{font-size:13px;font-weight:500;font-family:var(--display);}
+.tm-dept{font-size:11px;}
+.tm-emp{display:flex;flex-wrap:wrap;gap:4px;}
+.tm-emp-chip{font-size:10px;padding:3px 8px;border-radius:20px;cursor:pointer;transition:opacity .15s;font-family:var(--mono);}
+.tm-emp-chip:hover{opacity:.75;}
+.tm-sop-btn{font-size:10px;padding:4px 10px;border-radius:6px;border:1px solid rgba(0,212,160,.3);color:var(--accent);background:var(--accent-dim);cursor:pointer;font-family:var(--font);transition:all .15s;white-space:nowrap;}
+.tm-sop-btn:hover{background:rgba(0,212,160,.2);}
+.tm-header-row{display:grid;grid-template-columns:2fr 1fr 2fr auto;gap:12px;padding:9px 16px;border-bottom:1px solid var(--border);background:var(--surface2);}
+.tm-col-lbl{font-size:9px;color:var(--muted2);font-family:var(--mono);text-transform:uppercase;letter-spacing:.07em;}
+
+
+/* ═══ MOBILE IMPROVEMENTS ═══ */
+@media(max-width:600px){
+  .abtn{padding:9px 6px;font-size:11px;}
+  .card{padding:14px;}
+  .smart-card{flex-wrap:wrap;gap:10px;}
+  .smart-score-bar{display:none;}
+  .smart-acts{flex-direction:row;flex-wrap:wrap;width:100%;}
+  .smart-act-btn{flex:1;text-align:center;padding:8px 4px;}
+  .smart-sop-link{flex:1;text-align:center;padding:6px 4px;}
+  .topbar{padding:10px 14px;}
+  .page-title{font-size:14px;}
+  .sop-item-header{padding:12px;}
+  .sop-item-resp{display:none;}
+  .kpi-row{grid-template-columns:1fr 1fr;}
+  .dash-grid{grid-template-columns:1fr;}
+  .od-meta{grid-template-columns:1fr;}
+  .od-actions{flex-wrap:wrap;}
+  .od-btn{min-height:40px;}
+}
+
+
+/* ═══ PRINT STYLES ═══ */
+@media print {
+  .sidebar,.topbar,.card-actions,.abtn,.sop-back-btn,.sop-search-row,.toast,
+  .login-screen,.mob-overlay,.overlay,.logout-btn,.view-btn,.toggle-btn,
+  .mob-btn,.setup-banner,.stats-banner,.filters-wrap,.search-section,
+  .nav-item:not(.active),.tm-sop-btn,.smart-acts{display:none!important;}
+  .main{margin-left:0!important;}
+  .sop-item-body{display:block!important;}
+  .sop-item{border:1px solid #ccc;margin-bottom:8px;border-radius:4px;}
+  body{background:#fff;color:#000;}
+  .sop-purpose{background:#f5f5f5;border-left:3px solid #00d4a0;}
+  .sop-step-num{background:#e0f7f2;color:#00a07a;}
+}
+
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen hide" id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">💪</div>
+      <div><div class="login-logo-name">Delta Fitness</div><div class="login-logo-sub">Admin Panel</div></div>
+    </div>
+    <div class="login-title">Admin Sign In</div>
+    <div class="login-sub">Enter your employee code and password to manage staff records.</div>
+    <div class="login-field"><label class="login-label">Employee Code</label><input class="login-input" id="lc" placeholder="DF-001" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+    <div class="login-field"><label class="login-label">Password</label><input class="login-input" id="lp" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+    <div class="login-error" id="lerr"></div>
+    <div class="login-hint">Demo — Code: <b>DF-001</b> &nbsp;·&nbsp; Pass: <b>admin123</b></div>
+    <div class="back-link" onclick="hideLogin()">← Back to Directory</div>
+  </div>
+</div>
+
+<div class="mob-overlay" id="mob-overlay" onclick="closeMob()"></div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="logo">
+      <div class="logo-mark">
+        <div class="logo-icon">💪</div>
+        <div class="logo-texts"><div class="logo-name">Delta Fitness</div><div class="logo-sub">Operations Portal</div></div>
+      </div>
+      <button class="toggle-btn" id="toggle-btn" onclick="toggleSidebar()" title="Collapse sidebar" aria-label="Toggle sidebar">◀</button>
+    </div>
+    <nav class="nav">
+      <div class="nav-sec">Directory</div>
+      <div class="nav-item active" id="n-dir" onclick="goView('directory');closeMob()">
+        <span class="nav-icon">🔍</span><span class="nav-label">Directory</span>
+        <span class="nav-badge" id="nb-total">0</span>
+      </div>
+      <div class="nav-item" id="n-smart" onclick="goView('smart');closeMob()">
+        <span class="nav-icon">🧠</span><span class="nav-label">Who handles X?</span>
+      </div>
+      <div class="nav-sec">Insights</div>
+      <div class="nav-item" id="n-org" onclick="goView('org');closeMob()">
+        <span class="nav-icon">🌳</span><span class="nav-label">Org Chart</span>
+      </div>
+      <div class="nav-item" id="n-dash" onclick="goView('dashboard');closeMob()">
+        <span class="nav-icon">📊</span><span class="nav-label">Dashboard</span>
+      </div>
+      <div class="nav-sec">Knowledge</div>
+      <div class="nav-item" id="n-sop" onclick="goView('sop');closeMob()">
+        <span class="nav-icon">📘</span><span class="nav-label">SOP Manual</span>
+        <span class="nav-badge" id="nb-sop"></span>
+      </div>
+      <div class="nav-item" id="n-tm" onclick="goView('tasks');closeMob()">
+        <span class="nav-icon">📋</span><span class="nav-label">Task Ownership</span>
+      </div>
+      <div class="nav-sec">Admin</div>
+      <div class="nav-item" id="n-admin" onclick="requireLogin()">
+        <span class="nav-icon">⚙️</span><span class="nav-label">Admin Panel</span>
+      </div>
+      <div class="nav-item" onclick="exportCSV()">
+        <span class="nav-icon">📥</span><span class="nav-label">Export CSV</span>
+      </div>
+      <div class="nav-item" id="n-sheets" onclick="openSheetsModal()">
+        <span class="nav-icon">🔗</span><span class="nav-label">Google Sheets</span>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <span class="cdot" id="cdot"></span><span id="clabel" style="flex:1">Sample data · <a onclick="openSheetsModal()" style="color:var(--accent);cursor:pointer;text-decoration:underline">Connect Sheets</a></span>
+    <div style="font-size:9px;color:var(--muted2);margin-top:4px;font-family:var(--mono)">v4.0 · Delta Fitness Portal</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main" id="main-area">
+    <div class="topbar">
+      <button class="mob-btn" onclick="openMob()" aria-label="Open navigation menu">☰</button>
+      <div class="page-title" id="page-title">Staff Directory</div>
+      <div class="topbar-right">
+        <div class="stat-pill" id="sp-t">Total: <b id="cnt-t">0</b></div>
+        <div class="stat-pill" id="sp-s">Shown: <b id="cnt-s">0</b></div>
+        <button class="view-btn active" id="vbg" onclick="setVMode('grid')">⊞</button>
+        <button class="view-btn" id="vbl" onclick="setVMode('list')">☰</button>
+        <button class="logout-btn" id="logout-btn" onclick="logout()">🔒 Logout</button>
+      </div>
+    </div>
+
+    <!-- ══ DIRECTORY ══ -->
+    <div id="v-directory">
+      <div class="stats-banner" id="stats-banner"></div>
+      <div class="setup-banner" id="setup-banner">
+        <span>📊</span>
+        <span><b>Using sample data.</b> Connect your Google Sheet to load real staff and SOP data. <a onclick="openSheetsModal()">Connect now →</a></span>
+        <span class="setup-dismiss" onclick="this.parentElement.classList.add('hide')">✕</span>
+      </div>
+      <div class="search-section">
+        <div class="search-box">
+          <span class="si">🔍</span>
+          <input class="search-input" id="search-input" placeholder="Search name, role, responsibility, city, phone…" oninput="applyFilters()"/>
+          <button class="search-clear" id="search-clear" onclick="clearSearch()">✕</button>
+        </div>
+      </div>
+      <div class="filters-wrap">
+        <span class="fl">Dept</span>
+        <div class="chip active" data-d="all" onclick="setDept(this,'all')">All</div>
+        <div class="chip" data-d="HR" onclick="setDept(this,'HR')">HR</div>
+        <div class="chip" data-d="Finance" onclick="setDept(this,'Finance')">Finance</div>
+        <div class="chip" data-d="Maintenance" onclick="setDept(this,'Maintenance')">Maintenance</div>
+        <div class="chip" data-d="Sales" onclick="setDept(this,'Sales')">Sales</div>
+        <div class="chip" data-d="Supply Chain" onclick="setDept(this,'Supply Chain')">Supply Chain</div>
+        <div class="chip" data-d="Marketing" onclick="setDept(this,'Marketing')">Marketing</div>
+        <div class="chip" data-d="IT" onclick="setDept(this,'IT')">IT</div>
+        <div class="fdiv"></div>
+        <span class="fl">City</span>
+        <div class="chip loc active" data-l="all" onclick="setLoc(this,'all')">All</div>
+        <div class="chip loc" data-l="Riyadh" onclick="setLoc(this,'Riyadh')">Riyadh</div>
+        <div class="chip loc" data-l="Jeddah" onclick="setLoc(this,'Jeddah')">Jeddah</div>
+        <div class="chip loc" data-l="Dammam" onclick="setLoc(this,'Dammam')">Dammam</div>
+        <div class="chip loc" data-l="Bahrain" onclick="setLoc(this,'Bahrain')">Bahrain</div>
+      </div>
+      <div class="content-wrap vgrid active" id="v-grid">
+        <div class="results-bar"><div class="results-info"><b id="res-count">0</b> employees found</div></div>
+        <div class="grid" id="card-grid"></div>
+        <div class="empty" id="empty-s"><div style="font-size:38px;margin-bottom:10px">🔎</div><div>No employees match</div></div>
+      </div>
+      <div class="list-wrap vlist" id="v-list">
+        <table><thead><tr><th>Name</th><th>Dept</th><th>Title</th><th>City</th><th>Phone</th><th>Email</th></tr></thead><tbody id="list-body"></tbody></table>
+      </div>
+    </div>
+
+    <!-- ══ SMART SEARCH ══ -->
+    <div class="smart-wrap" id="v-smart">
+      <div class="smart-title">🧠 Who handles this?</div>
+      <div class="smart-sub">Type any task, process, or keyword — the portal will find the right person and link the relevant SOP so you know both <em>who</em> to contact and <em>how</em> it should be done.</div>
+      <div class="smart-search-box">
+        <span style="font-size:20px">💬</span>
+        <input class="smart-input" id="smart-input" placeholder="e.g. employment certificate, contractor payment, Jeddah maintenance… (Ctrl+K)" onkeydown="if(event.key==='Enter')runSmart()"/>
+        <button class="smart-btn" onclick="runSmart()">Find →</button>
+      </div>
+      <div class="quick-chips" id="quick-chips">
+        <span style="font-size:11px;color:var(--muted);align-self:center;font-family:var(--mono)">Try:</span>
+      </div>
+      <div id="smart-results"></div>
+    </div>
+
+    <!-- ══ ORG CHART ══ -->
+    <div class="org-wrap" id="v-org">
+      <div class="org-toolbar">
+        <div class="admin-title">🌳 Org Chart</div>
+        <span class="org-hint">Click any person to see details</span>
+      </div>
+      <div class="org-scroll" id="org-scroll"></div>
+      <div class="org-detail" id="org-detail"></div>
+    </div>
+
+    <!-- ══ DASHBOARD ══ -->
+    <div class="dash-wrap" id="v-dash">
+      <div class="dash-title">📊 Department Dashboard</div>
+      <div class="kpi-row" id="kpi-row"></div>
+      <div class="dash-grid" id="dash-grid"></div>
+    </div>
+
+    <!-- ══ ADMIN ══ -->
+    <div class="admin-wrap" id="v-admin">
+      <div class="admin-header">
+        <div class="admin-title">⚙️ Manage Employees</div>
+        <button class="btn-add" onclick="openAdd()">+ Add Employee</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table><thead><tr><th>Name</th><th>Dept</th><th>Title</th><th>City</th><th>Phone</th><th>Actions</th></tr></thead><tbody id="admin-body"></tbody></table>
+      </div>
+    </div>
+  </main>
+</div>
+
+    <!-- ══ SOP MODULE ══ -->
+    <div class="sop-wrap" id="v-sop">
+      <!-- Dept cards -->
+      <div id="sop-index">
+        <div class="sop-page-title">📘 SOP Manual</div>
+        <div class="sop-page-sub">Delta Fitness standard operating procedures. Click any department to browse its procedures, see process steps, required documents, and responsible staff.</div>
+        <div class="sop-dept-grid" id="sop-dept-grid"></div>
+      </div>
+      <!-- Detail view -->
+      <div class="sop-detail" id="sop-detail">
+        <div class="sop-detail-header">
+          <button class="sop-back-btn" onclick="sopBack()">← Back</button>
+          <div>
+            <div class="sop-detail-title" id="sop-detail-title"></div>
+            <div class="sop-detail-sub" id="sop-detail-sub"></div>
+          </div>
+        </div>
+        <div class="sop-search-row">
+          <span style="color:var(--muted);font-size:14px">🔍</span>
+          <input class="sop-search-in" id="sop-search" placeholder="Search SOPs…" oninput="filterSOPs()"/>
+        </div>
+        <div class="sop-accordion" id="sop-accordion"></div>
+      </div>
+    </div>
+
+    <!-- ══ TASK OWNERSHIP ══ -->
+    <div class="tm-wrap" id="v-tasks">
+      <div class="tm-header">📋 Task Ownership</div>
+      <div class="tm-sub">Who handles what at Delta Fitness. Click any task to open its SOP. Click a name chip to WhatsApp them directly.</div>
+      <div class="tm-search-row">
+        <span style="color:var(--muted);font-size:14px">🔍</span>
+        <input class="tm-search-in" id="tm-search" placeholder="Search tasks, departments, keywords…" oninput="tmQuery=this.value;renderTaskMatrix()"/>
+      </div>
+      <div class="tm-table">
+        <div class="tm-header-row">
+          <div class="tm-col-lbl">Task</div>
+          <div class="tm-col-lbl">Department</div>
+          <div class="tm-col-lbl">Responsible</div>
+          <div class="tm-col-lbl">SOP</div>
+        </div>
+        <div id="tm-body"></div>
+      </div>
+    </div>
+
+<!-- EDIT MODAL -->
+<div class="overlay" id="m-overlay">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title" id="m-title">Add Employee</div><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="form-grid">
+      <div class="form-group"><label class="form-label">First Name</label><input class="form-input" id="f-fn" placeholder="Ahmed"/></div>
+      <div class="form-group"><label class="form-label">Last Name</label><input class="form-input" id="f-ln" placeholder="Al-Rashid"/></div>
+      <div class="form-group full"><label class="form-label">Job Title</label><input class="form-input" id="f-title" placeholder="HR Specialist"/></div>
+      <div class="form-group"><label class="form-label">Department</label>
+        <select class="form-select" id="f-dept"><option>HR</option><option>Finance</option><option>Maintenance</option><option>Sales</option><option>Supply Chain</option><option>Marketing</option><option>IT</option><option>Management</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Location</label>
+        <select class="form-select" id="f-loc"><option>Riyadh</option><option>Jeddah</option><option>Dammam</option><option>Bahrain</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Reports To (Employee ID)</label><input class="form-input" id="f-mgr" placeholder="e.g. 15"/><div style="font-size:9px;color:var(--muted2);margin-top:3px;font-family:var(--mono)">⚡ Changing this updates the Org Chart</div></div>
+      <div class="form-group"><label class="form-label">Phone / WhatsApp</label><input class="form-input" id="f-phone" placeholder="+966 5X XXX XXXX"/></div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="f-email" placeholder="name@deltafitness.sa"/></div>
+      <div class="form-group full"><label class="form-label">Responsibilities (comma-separated)</label><textarea class="form-input form-textarea" id="f-resp" placeholder="Employment certificates, Visa processing, Onboarding"></textarea></div>
+      <div class="form-group full">
+        <div class="toggle-row">
+          <div><div class="toggle-label">Out of Office</div><div class="toggle-sub">Shows OOO badge on their card</div></div>
+          <label class="toggle-sw"><input type="checkbox" id="f-ooo"/><span class="toggle-track"></span><span class="toggle-knob"></span></label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" id="btn-del" onclick="askDel()" style="display:none;margin-right:auto">Delete</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEmp()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE -->
+<div class="overlay" id="c-overlay">
+  <div class="modal confirm-modal">
+    <div class="confirm-icon">⚠️</div>
+    <div class="modal-title">Delete Employee?</div>
+    <div class="confirm-msg" id="c-msg"></div>
+    <div class="modal-footer" style="justify-content:center;gap:12px">
+      <button class="btn btn-ghost" onclick="closeConfirm()">Cancel</button>
+      <button class="btn btn-danger" onclick="doDel()">Yes, Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- GOOGLE SHEETS MODAL -->
+<div class="overlay" id="gs-overlay">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-header"><div class="modal-title">🔗 Connect Google Sheets</div><button class="modal-close" onclick="closeGS()">✕</button></div>
+    <div style="font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:14px">Connect two Google Sheets — one for Employees, one for SOPs. Both load automatically on every visit.</div>
+    <div style="background:var(--surface2);border-radius:9px;padding:12px 15px;margin-bottom:16px;font-size:12px;line-height:1.9;border:1px solid var(--border2)">
+      <b style="color:var(--accent)">Sheet setup:</b><br>
+      <b style="color:var(--text)">Sheet 1 — Employees:</b> headers: <code style="background:var(--surface3);padding:1px 6px;border-radius:3px;color:var(--accent);font-size:10px">id, fname, lname, title, dept, loc, phone, email, resp, ooo, managerId</code><br>
+      <b style="color:var(--text)">Sheet 2 — SOP:</b> headers: <code style="background:var(--surface3);padding:1px 6px;border-radius:3px;color:var(--accent);font-size:10px">department, sop_title, purpose, steps, documents, controls, escalation</code><br>
+      For each sheet: <b style="color:var(--text)">File → Share → Publish to web</b> → choose the correct sheet tab → Format: CSV → Publish. Each sheet gets its own URL. Paste below.
+    </div>
+    <div class="form-group" style="margin-bottom:12px">
+      <label class="form-label">👥 Employees Sheet — Published CSV URL</label>
+      <input class="form-input" id="gs-url" placeholder="https://docs.google.com/spreadsheets/d/.../pub?gid=0&single=true&output=csv" style="font-size:11px;font-family:var(--mono)"/>
+    </div>
+    <div class="form-group" style="margin-bottom:12px">
+      <label class="form-label">📘 SOP Sheet — Published CSV URL</label>
+      <input class="form-input" id="gs-sop-url" placeholder="https://docs.google.com/spreadsheets/d/.../pub?gid=1&single=true&output=csv" style="font-size:11px;font-family:var(--mono)"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeGS()">Cancel</button>
+      <button class="btn btn-primary" id="gs-connect-btn" onclick="connectSheets()">Connect & Load Both</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════
+   ADMIN CREDENTIALS
+   Add more: { code:'DF-XXX', pass:'pw', name:'Name' }
+═══════════════════════════════════ */
+const ADMINS=[
+  {code:'DF-001',pass:'admin123',name:'Super Admin'},
+  {code:'DF-HR1',pass:'hr2024',  name:'HR Admin'},
+  {code:'DF-OPS',pass:'ops2024', name:'Ops Manager'},
+];
+
+const DEPT={
+  'HR':          {cls:'d-hr',       icon:'👤',color:'#ff7090'},
+  'Finance':     {cls:'d-finance',  icon:'💰',color:'#4db8ff'},
+  'Maintenance': {cls:'d-maint',    icon:'🔧',color:'#ffb347'},
+  'Sales':       {cls:'d-sales',    icon:'📈',color:'#00c896'},
+  'Supply Chain':{cls:'d-supply',   icon:'📦',color:'#c47aff'},
+  'Marketing':   {cls:'d-marketing',icon:'📣',color:'#ff9060'},
+  'IT':          {cls:'d-it',       icon:'💻',color:'#50c8ff'},
+  'Management':  {cls:'d-mgmt',     icon:'🏢',color:'#a0a8c0'},
+};
+function dc(d){return(DEPT[d]||DEPT.Management).cls;}
+function di(d){return(DEPT[d]||DEPT.Management).icon;}
+function dcolor(d){return(DEPT[d]||DEPT.Management).color;}
+
+/* ═══ SAMPLE DATA (managerId links to another employee's id) ═══ */
+let emps=[
+  {id:15,fname:'Ali',     lname:'Al-Mansouri',title:'General Manager',        dept:'Management',  loc:'Bahrain',phone:'+97333004411',  email:'ali.almansouri@deltafitness.sa',    resp:'Executive decisions,Bahrain operations,Strategic planning',      ooo:false,managerId:null},
+  {id:9, fname:'Abdullah',lname:'Al-Mutairi', title:'Sales Manager',          dept:'Sales',       loc:'Riyadh', phone:'+966549990011', email:'abdullah.almutairi@deltafitness.sa',resp:'Sales team lead,Key accounts,Government tenders',                ooo:false,managerId:15},
+  {id:1, fname:'Sara',    lname:'Al-Dosari',  title:'HR Manager',             dept:'HR',          loc:'Riyadh', phone:'+966501112233', email:'sara.aldosari@deltafitness.sa',    resp:'Employment certificates,Staff contracts,Iqama renewal,HR policy', ooo:false,managerId:15},
+  {id:4, fname:'Faisal',  lname:'Al-Ghamdi',  title:'Finance Manager',        dept:'Finance',     loc:'Riyadh', phone:'+966504445566', email:'faisal.alghamdi@deltafitness.sa',  resp:'Contractor payments,Budget approval,Vendor invoices,Reports',     ooo:false,managerId:15},
+  {id:6, fname:'Tariq',   lname:'Al-Harbi',   title:'Maintenance Supervisor', dept:'Maintenance', loc:'Riyadh', phone:'+966546667788', email:'tariq.alharbi@deltafitness.sa',    resp:'Riyadh maintenance team,Equipment servicing,Preventive maintenance',ooo:false,managerId:15},
+  {id:11,fname:'Lina',    lname:'Al-Rashidi', title:'Supply Chain Manager',   dept:'Supply Chain',loc:'Riyadh', phone:'+966552002233', email:'lina.alrashidi@deltafitness.sa',   resp:'Import logistics,Customs clearance,Supplier coordination',       ooo:false,managerId:15},
+  {id:13,fname:'Dana',    lname:'Al-Sulami',  title:'Marketing Manager',      dept:'Marketing',   loc:'Riyadh', phone:'+966504004455', email:'dana.alsulami@deltafitness.sa',    resp:'Brand management,Social media,Marketing campaigns',              ooo:false,managerId:15},
+  {id:14,fname:'Sami',    lname:'Al-Juhani',  title:'IT Manager',             dept:'IT',          loc:'Riyadh', phone:'+966555005566', email:'sami.aljuhani@deltafitness.sa',    resp:'IT infrastructure,System access,Software support,Network issues', ooo:false,managerId:15},
+  {id:10,fname:'Yousef',  lname:'Al-Shehri',  title:'Sales Consultant',       dept:'Sales',       loc:'Jeddah', phone:'+966501001122', email:'yousef.alshehri@deltafitness.sa',  resp:'Jeddah commercial clients,Quotations,Site visits',               ooo:false,managerId:9},
+  {id:2, fname:'Khalid',  lname:'Al-Otaibi',  title:'HR Specialist',          dept:'HR',          loc:'Jeddah', phone:'+966552223344', email:'khalid.alotaibi@deltafitness.sa',  resp:'Onboarding,Exit interviews,Leave management',                    ooo:false,managerId:1},
+  {id:3, fname:'Noura',   lname:'Al-Shamri',  title:'Payroll Officer',        dept:'Finance',     loc:'Riyadh', phone:'+966543334455', email:'noura.alshamri@deltafitness.sa',   resp:'Salary processing,Employee payroll,Payroll queries',             ooo:true, managerId:4},
+  {id:5, fname:'Omar',    lname:'Al-Zahrani', title:'Accounts Payable',       dept:'Finance',     loc:'Riyadh', phone:'+966555556677', email:'omar.alzahrani@deltafitness.sa',   resp:'Supplier payment,PO payments,Bank transfers',                    ooo:false,managerId:4},
+  {id:7, fname:'Hassan',  lname:'Al-Amoudi',  title:'Senior Technician',      dept:'Maintenance', loc:'Jeddah', phone:'+966507778899', email:'hassan.alamoudi@deltafitness.sa',  resp:'Jeddah maintenance team,Life Fitness repairs,Hammer Strength',   ooo:false,managerId:6},
+  {id:8, fname:'Rami',    lname:'Al-Qahtani', title:'Field Technician',       dept:'Maintenance', loc:'Dammam', phone:'+966558889900', email:'rami.alqahtani@deltafitness.sa',   resp:'Dammam maintenance,On-site installation,Equipment calibration',  ooo:false,managerId:6},
+  {id:12,fname:'Majed',   lname:'Al-Anazi',   title:'Warehouse Supervisor',   dept:'Supply Chain',loc:'Riyadh', phone:'+966543003344', email:'majed.alanazi@deltafitness.sa',    resp:'Warehouse management,Stock control,Goods receiving',             ooo:false,managerId:11},
+];
+
+/* ═══ STATE ═══ */
+let isAdmin=false,adminName='',collapsed=false;
+let editId=null,delId=null;
+let aDept='all',aLoc='all',vMode='grid',curView='directory';
+let nid=16,sheetsURL='';
+
+/* ═══ UTILS ═══ */
+function ini(e){return(e.fname[0]+e.lname[0]).toUpperCase();}
+function waN(p){return p.replace(/\D/g,'');}
+function toast(m,c='var(--accent)'){
+  const t=document.getElementById('toast');
+  t.textContent=m;t.style.borderColor=c;t.style.color=c;
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+/* ═══ MOBILE ═══ */
+function openMob(){document.getElementById('sidebar').classList.add('mob-open');document.getElementById('mob-overlay').style.display='block';}
+function closeMob(){document.getElementById('sidebar').classList.remove('mob-open');document.getElementById('mob-overlay').style.display='none';}
+
+/* ═══ SIDEBAR ═══ */
+function toggleSidebar(){
+  collapsed=!collapsed;
+  document.getElementById('sidebar').classList.toggle('col',collapsed);
+  document.getElementById('main-area').classList.toggle('col',collapsed);
+  const b=document.getElementById('toggle-btn');
+  b.textContent=collapsed?'▶':'◀';b.title=collapsed?'Expand':'Collapse';
+}
+
+/* ═══ LOGIN ═══ */
+function requireLogin(){if(isAdmin){goView('admin');return;}document.getElementById('login-screen').classList.remove('hide');setTimeout(()=>document.getElementById('lc').focus(),80);}
+function hideLogin(){document.getElementById('login-screen').classList.add('hide');}
+function doLogin(){
+  const code=document.getElementById('lc').value.trim();
+  const pass=document.getElementById('lp').value;
+  const m=ADMINS.find(a=>a.code===code&&a.pass===pass);
+  if(m){
+    isAdmin=true;adminName=m.name;hideLogin();
+    const lb=document.getElementById('logout-btn');lb.classList.add('vis');lb.textContent='🔒 '+m.name;
+    goView('admin');toast('✅ Welcome, '+m.name);
+  } else {
+    document.getElementById('lerr').textContent='Incorrect code or password.';
+    ['lc','lp'].forEach(id=>{const el=document.getElementById(id);el.classList.add('err');setTimeout(()=>el.classList.remove('err'),2000);});
+    setTimeout(()=>document.getElementById('lerr').textContent='',2000);
+  }
+}
+function logout(){isAdmin=false;adminName='';document.getElementById('logout-btn').classList.remove('vis');document.getElementById('lc').value='';document.getElementById('lp').value='';goView('directory');toast('🔒 Logged out','var(--muted)');}
+
+/* ═══ VIEWS ═══ */
+const VIEWS={
+  directory:{el:'v-directory',nav:'n-dir',title:'Staff Directory',topbar:true},
+  smart:    {el:'v-smart',    nav:'n-smart',title:'Who handles X?',topbar:false},
+  org:      {el:'v-org',      nav:'n-org',  title:'Org Chart',topbar:false},
+  dashboard:{el:'v-dash',     nav:'n-dash', title:'Dashboard',topbar:false},
+  sop:      {el:'v-sop',      nav:'n-sop',  title:'SOP Manual',topbar:false},
+  tasks:    {el:'v-tasks',    nav:'n-tm',   title:'Task Ownership',topbar:false},
+  admin:    {el:'v-admin',    nav:'n-admin',title:'Admin Panel',topbar:false},
+};
+function goView(v){
+  if(v==='admin'&&!isAdmin){requireLogin();return;}
+  curView=v;
+  Object.keys(VIEWS).forEach(k=>{
+    const cfg=VIEWS[k];
+    const el=document.getElementById(cfg.el);
+    if(el)el.style.display=k===v?'':'none';
+    const nav=document.getElementById(cfg.nav);
+    if(nav)nav.classList.toggle('active',k===v);
+  });
+  // special: admin uses class
+  document.getElementById('v-admin').classList.toggle('active',v==='admin');
+  document.getElementById('v-admin').style.display='';
+  // special: smart/org/dash use class active
+  ['v-smart','v-org','v-dash','v-sop','v-tasks'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.classList.toggle('active',id==='v-'+v);el.style.display='';}
+  });
+  document.getElementById('page-title').textContent=VIEWS[v]?.title||v;
+  const showTop=v==='directory';
+  document.getElementById('sp-t').style.display=showTop?'':'none';
+  document.getElementById('sp-s').style.display=showTop?'':'none';
+  document.getElementById('vbg').style.display=showTop?'':'none';
+  document.getElementById('vbl').style.display=showTop?'':'none';
+  if(v==='admin')renderAdmin();
+  if(v==='org')renderOrg();
+  if(v==='dashboard')renderDashboard();
+  if(v==='sop'){renderSopIndex();}
+  if(v==='tasks'){renderTaskMatrix();}
+}
+// fix: ensure correct display on init
+function initViews(){
+  document.getElementById('v-smart').style.display='none';
+  document.getElementById('v-smart').classList.remove('active');
+  document.getElementById('v-org').style.display='none';
+  document.getElementById('v-org').classList.remove('active');
+  document.getElementById('v-dash').style.display='none';
+  document.getElementById('v-dash').classList.remove('active');
+  document.getElementById('v-admin').style.display='none';
+  document.getElementById('v-admin').classList.remove('active');
+  const sopEl=document.getElementById('v-sop');if(sopEl){sopEl.style.display='none';sopEl.classList.remove('active');}
+  const tmEl=document.getElementById('v-tasks');if(tmEl){tmEl.style.display='none';tmEl.classList.remove('active');}
+}
+
+function setVMode(m){
+  vMode=m;
+  document.getElementById('v-grid').classList.toggle('active',m==='grid');
+  document.getElementById('v-list').classList.toggle('active',m==='list');
+  document.getElementById('vbg').classList.toggle('active',m==='grid');
+  document.getElementById('vbl').classList.toggle('active',m==='list');
+  applyFilters();
+}
+
+/* ═══ STATS BANNER ═══ */
+function renderStats(){
+  const ooo=emps.filter(e=>e.ooo).length;
+  const locs=new Set(emps.map(e=>e.loc)).size;
+  document.getElementById('stats-banner').innerHTML=`
+    <div class="stat-card"><span class="stat-icon">👥</span><div><div class="stat-num">${emps.length}</div><div class="stat-lbl">Total Staff</div></div></div>
+    <div class="stat-card"><span class="stat-icon">🏢</span><div><div class="stat-num">${Object.keys(DEPT).length}</div><div class="stat-lbl">Departments</div></div></div>
+    <div class="stat-card"><span class="stat-icon">📍</span><div><div class="stat-num">${locs}</div><div class="stat-lbl">Locations</div></div></div>
+    <div class="stat-card"><span class="stat-icon">✈️</span><div><div class="stat-num">${ooo}</div><div class="stat-lbl">Out of Office</div></div></div>
+  `;
+}
+
+/* ═══ RENDER CARD ═══ */
+function renderCard(e,highlight=''){
+  const k=dc(e.dept),dm=DEPT[e.dept]||DEPT.Management;
+  const ra=e.resp?e.resp.split(',').map(r=>r.trim()).filter(Boolean):[];
+  const hl=highlight.toLowerCase();
+  const rh=ra.slice(0,3).map(r=>{
+    const isHl=hl&&r.toLowerCase().includes(hl);
+    return `<span class="resp-tag${isHl?' highlight':''}">${r}</span>`;
+  }).join('')+(ra.length>3?`<span class="resp-tag">+${ra.length-3}</span>`:'');
+  const oooBadge=e.ooo?`<div class="ooo-badge">✈️ OOO</div>`:'';
+  const editBtn=isAdmin?`<button class="abtn edit" onclick="event.stopPropagation();openEdit(${e.id})">✏️</button>`:'';
+  const wa=waN(e.phone);
+  return `<div class="card ${k}">
+    ${oooBadge}
+    <div class="card-glow glow-color"></div>
+    <div class="card-top">
+      <div class="avatar avatar-color">${ini(e)}</div>
+      <div class="card-info">
+        <div class="card-name">${e.fname} ${e.lname}</div>
+        <div class="card-job">${e.title}</div>
+        <span class="dept-badge dept-color">${dm.icon} ${e.dept}</span>
+      </div>
+    </div>
+    <hr class="cdivider"/>
+    <div class="card-meta">
+      <div class="meta-row"><span class="meta-icon">📍</span><span class="meta-lbl">City</span><span class="meta-val">${e.loc}</span></div>
+      <div class="meta-row"><span class="meta-icon">📞</span><span class="meta-lbl">Phone</span><span class="meta-val">${e.phone}</span></div>
+      <div class="meta-row"><span class="meta-icon">✉️</span><span class="meta-lbl">Email</span><span class="meta-val">${e.email}</span></div>
+    </div>
+    ${rh?`<div class="resp-tags">${rh}</div>`:''}
+    <div class="card-actions">
+      <button class="abtn wa" onclick="window.open('https://wa.me/${wa}','_blank')">💬 WA</button>
+      <button class="abtn" onclick="window.location='tel:${e.phone}'">📞 Call</button>
+      <button class="abtn" onclick="window.location='mailto:${e.email}'">✉️ Email</button>
+      ${editBtn}
+      <button class="abtn" onclick="event.stopPropagation();viewEmpSOP('${e.dept}')">📘 SOP</button>
+    </div>
+  </div>`;
+}
+
+/* ═══ FILTERS ═══ */
+function getFiltered(){
+  const q=document.getElementById('search-input').value.toLowerCase().trim();
+  return emps.filter(e=>{
+    const dOk=aDept==='all'||e.dept===aDept;
+    const lOk=aLoc==='all'||e.loc===aLoc;
+    const sOk=!q||[e.fname,e.lname,e.title,e.dept,e.loc,e.phone,e.email,e.resp||''].join(' ').toLowerCase().includes(q);
+    return dOk&&lOk&&sOk;
+  });
+}
+function applyFilters(){
+  const q=document.getElementById('search-input').value;
+  document.getElementById('search-clear').classList.toggle('vis',q.length>0);
+  const f=getFiltered();
+  document.getElementById('card-grid').innerHTML=f.map(e=>renderCard(e)).join('');
+  document.getElementById('empty-s').classList.toggle('vis',f.length===0);
+  document.getElementById('res-count').textContent=f.length;
+  document.getElementById('cnt-s').textContent=f.length;
+  document.getElementById('cnt-t').textContent=emps.length;
+  document.getElementById('nb-total').textContent=emps.length;
+  document.getElementById('list-body').innerHTML=f.map(e=>{
+    const k=dc(e.dept),dm=DEPT[e.dept]||{};
+    return `<tr>
+      <td><div class="td-name"><div class="td-av ${k} avatar-color">${ini(e)}</div>${e.fname} ${e.lname}</div></td>
+      <td><span class="td-badge ${k} dept-color">${dm.icon||''} ${e.dept}</span></td>
+      <td style="color:var(--muted)">${e.title}</td>
+      <td>📍 ${e.loc}</td>
+      <td style="font-family:var(--mono);font-size:11px">${e.phone}</td>
+      <td style="font-size:11px;color:var(--muted)">${e.email}</td>
+    </tr>`;
+  }).join('');
+  renderStats();
+}
+function setDept(el,d){document.querySelectorAll('[data-d]').forEach(c=>c.classList.remove('active'));el.classList.add('active');aDept=d;applyFilters();}
+function setLoc(el,l){document.querySelectorAll('[data-l]').forEach(c=>c.classList.remove('active'));el.classList.add('active');aLoc=l;applyFilters();}
+function clearSearch(){document.getElementById('search-input').value='';document.getElementById('search-clear').classList.remove('vis');applyFilters();}
+
+/* ═══ ADMIN TABLE ═══ */
+function renderAdmin(){
+  document.getElementById('admin-body').innerHTML=emps.map(e=>{
+    const k=dc(e.dept),dm=DEPT[e.dept]||{};
+    const mgr=emps.find(x=>x.id===e.managerId);
+    return `<tr>
+      <td><div class="td-name"><div class="td-av ${k} avatar-color">${ini(e)}</div>
+        <div><div>${e.fname} ${e.lname}${e.ooo?` <span style="font-size:9px;color:var(--warn)">✈️</span>`:''}</div>
+        <div style="font-size:9px;color:var(--muted2)">${mgr?'→ '+mgr.fname+' '+mgr.lname:''}</div></div>
+      </div></td>
+      <td><span class="td-badge ${k} dept-color">${dm.icon||''} ${e.dept}</span></td>
+      <td style="color:var(--muted);font-size:12px">${e.title}</td>
+      <td style="font-size:12px">📍 ${e.loc}</td>
+      <td style="font-family:var(--mono);font-size:11px">${e.phone}</td>
+      <td><div class="td-acts">
+        <button class="tbl-btn" onclick="openEdit(${e.id})">Edit</button>
+        <button class="tbl-btn del" onclick="delId=${e.id};askDelDirect(${e.id})">Delete</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ═══ ADD/EDIT ═══ */
+function openAdd(){
+  editId=null;document.getElementById('m-title').textContent='Add Employee';document.getElementById('btn-del').style.display='none';
+  ['fn','ln','title','phone','email','resp','mgr'].forEach(f=>document.getElementById('f-'+f).value='');
+  document.getElementById('f-dept').value='HR';document.getElementById('f-loc').value='Riyadh';document.getElementById('f-ooo').checked=false;
+  document.getElementById('m-overlay').classList.add('open');
+}
+function openEdit(id){
+  const e=emps.find(x=>x.id===id);if(!e)return;
+  editId=id;document.getElementById('m-title').textContent='Edit — '+e.fname+' '+e.lname;document.getElementById('btn-del').style.display='flex';
+  document.getElementById('f-fn').value=e.fname;document.getElementById('f-ln').value=e.lname;
+  document.getElementById('f-title').value=e.title;document.getElementById('f-dept').value=e.dept;
+  document.getElementById('f-loc').value=e.loc;document.getElementById('f-phone').value=e.phone;
+  document.getElementById('f-email').value=e.email;document.getElementById('f-resp').value=e.resp||'';
+  document.getElementById('f-ooo').checked=!!e.ooo;document.getElementById('f-mgr').value=e.managerId||'';
+  document.getElementById('m-overlay').classList.add('open');
+}
+function closeModal(){document.getElementById('m-overlay').classList.remove('open');}
+function saveEmp(){
+  const fn=document.getElementById('f-fn').value.trim();
+  const ln=document.getElementById('f-ln').value.trim();
+  if(!fn||!ln){
+    toast('⚠️ First and last name are required','var(--warn)');
+    if(!fn)document.getElementById('f-fn').style.borderColor='var(--danger)';
+    if(!ln)document.getElementById('f-ln').style.borderColor='var(--danger)';
+    setTimeout(()=>{
+      document.getElementById('f-fn').style.borderColor='';
+      document.getElementById('f-ln').style.borderColor='';
+    },2500);
+    return;
+  }
+  const mgrRaw=document.getElementById('f-mgr').value.trim();
+  const d={fname:fn,lname:ln,title:document.getElementById('f-title').value.trim(),
+    dept:document.getElementById('f-dept').value,loc:document.getElementById('f-loc').value,
+    phone:document.getElementById('f-phone').value.trim(),email:document.getElementById('f-email').value.trim(),
+    resp:document.getElementById('f-resp').value.trim(),ooo:document.getElementById('f-ooo').checked,
+    managerId:mgrRaw?parseInt(mgrRaw):null
+  };
+  if(editId){const i=emps.findIndex(x=>x.id===editId);emps[i]={...emps[i],...d};toast('✅ Updated');}
+  else{emps.push({id:nid++,...d});toast('✅ Employee added');}
+  closeModal();applyFilters();if(curView==='admin')renderAdmin();
+}
+function askDel(){delId=editId;openConfirm(editId);}
+function askDelDirect(id){delId=id;openConfirm(id);}
+function openConfirm(id){const e=emps.find(x=>x.id===id);if(e)document.getElementById('c-msg').textContent=`Remove ${e.fname} ${e.lname}? This cannot be undone.`;document.getElementById('c-overlay').classList.add('open');}
+function closeConfirm(){document.getElementById('c-overlay').classList.remove('open');}
+function doDel(){emps=emps.filter(x=>x.id!==delId);closeConfirm();closeModal();applyFilters();if(curView==='admin')renderAdmin();toast('🗑️ Removed','var(--muted)');}
+
+/* ════════════════════════════════════
+   PHASE 2A — SMART SEARCH
+════════════════════════════════════ */
+const QUICK_QUERIES=[
+  'Employment certificate','Contractor payment','Iqama renewal',
+  'Jeddah maintenance','Salary processing','IT support',
+  'Stock receiving','Marketing campaign','Government tender',
+  'Equipment repair','Bank transfer','Onboarding'
+];
+
+function initSmartSearch(){
+  const wrap=document.getElementById('quick-chips');
+  QUICK_QUERIES.slice(0,8).forEach(q=>{
+    const chip=document.createElement('div');
+    chip.className='qchip';chip.textContent=q;
+    chip.onclick=()=>{document.getElementById('smart-input').value=q;runSmart();};
+    wrap.appendChild(chip);
+  });
+}
+
+function scoreEmployee(emp,query){
+  const q=query.toLowerCase().trim();
+  const words=q.split(/\s+/).filter(w=>w.length>2);
+  let score=0;const matched=[];
+  const resp=(emp.resp||'').toLowerCase();
+  const title=emp.title.toLowerCase();
+  const dept=emp.dept.toLowerCase();
+  const loc=emp.loc.toLowerCase();
+  const name=(emp.fname+' '+emp.lname).toLowerCase();
+
+  // exact phrase in responsibilities = highest
+  if(resp.includes(q)){score+=100;matched.push(q);}
+  if(title.includes(q)){score+=60;}
+  if(dept.includes(q)){score+=40;}
+  if(loc.includes(q)){score+=30;}
+  if(name.includes(q)){score+=20;}
+
+  // individual words
+  words.forEach(w=>{
+    const ra=(emp.resp||'').split(',').map(r=>r.trim().toLowerCase());
+    ra.forEach(r=>{
+      if(r.includes(w)){score+=20;if(!matched.includes(r))matched.push(r);}
+    });
+    if(title.includes(w))score+=10;
+    if(dept.includes(w))score+=8;
+    if(loc.includes(w))score+=15;
+  });
+
+  // SOP keyword boost
+  sopData.forEach(s=>{
+    if(s.department===emp.dept){
+      const sTitle=(s.sop_title||'').toLowerCase();
+      const sPurpose=(s.purpose||'').toLowerCase();
+      words.forEach(w=>{
+        if(sTitle.includes(w)){score+=8;}
+        if(sPurpose.includes(w)){score+=5;}
+      });
+      if(sTitle.includes(q)){score+=25;}
+    }
+  });
+  // OOO penalty
+  if(emp.ooo)score=Math.max(0,score-25);
+  return{score,matched};
+}
+
+function runSmart(){
+  const q=document.getElementById('smart-input').value.trim();
+  if(!q)return;
+  const scored=emps.map(e=>{const{score,matched}=scoreEmployee(e,q);return{...e,score,matched};})
+    .filter(e=>e.score>0)
+    .sort((a,b)=>b.score-a.score)
+    .slice(0,6);
+  const maxScore=scored[0]?.score||1;
+  const wrap=document.getElementById('smart-results');
+  if(!scored.length){
+    wrap.innerHTML=`<div class="smart-empty"><div class="smart-empty-icon">🔎</div><div style="font-size:14px;font-weight:500;margin-bottom:6px">No match for "<b>${q}</b>"</div><div style="font-size:11px;color:var(--muted)">Try: a task like <i>invoice</i>, a city like <i>Jeddah</i>, or a role like <i>payroll</i></div></div>`;
+    return;
+  }
+  wrap.innerHTML=scored.map((e,i)=>{
+    const k=dc(e.dept),dm=DEPT[e.dept]||DEPT.Management;
+    const pct=Math.round((e.score/maxScore)*100);
+    const wa=waN(e.phone);
+    const matchTags=e.matched.slice(0,3).map(m=>`<span class="smart-match-tag">${m}</span>`).join('');
+    const ooWarn=e.ooo?`<span style="font-size:10px;color:var(--warn);margin-left:6px">✈️ OOO</span>`:'';
+    return `<div class="smart-card">
+      <div class="smart-rank${i===0?' top':''}">${i+1}</div>
+      <div class="smart-av ${k} avatar-color">${ini(e)}</div>
+      <div class="smart-info">
+        <div class="smart-name">${e.fname} ${e.lname}${ooWarn}</div>
+        <div class="smart-job">${e.title} · <span class="dept-color ${k}" style="font-size:10px;padding:1px 5px;border-radius:10px">${dm.icon} ${e.dept}</span> · 📍 ${e.loc}</div>
+        <div class="smart-match-tags">${matchTags}</div>
+      </div>
+      <div class="smart-score-bar">
+        <div class="smart-score-num">${pct}%</div>
+        <div class="smart-score-label">match</div>
+        <div class="smart-bar-outer"><div class="smart-bar-inner" style="width:${pct}%"></div></div>
+      </div>
+      <div class="smart-acts">
+        <button class="smart-act-btn wa" onclick="window.open('https://wa.me/${wa}','_blank')" title="WhatsApp">💬</button>
+        <button class="smart-act-btn" onclick="window.location='tel:${e.phone}'" title="Call">📞</button>
+        <button class="smart-act-btn" onclick="window.location='mailto:${e.email}'" title="Email">✉️</button>
+        ${(()=>{const sl=getSopLink(q);return sl?`<button class="smart-sop-link" onclick="event.stopPropagation();viewEmpSOP('${e.dept}')">📘 SOP</button>`:'';})()}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ════════════════════════════════════
+   PHASE 2B — ORG CHART
+════════════════════════════════════ */
+function buildTree(){
+  const map={};
+  emps.forEach(e=>map[e.id]={...e,children:[]});
+  const roots=[];
+  emps.forEach(e=>{
+    if(e.managerId&&map[e.managerId]){map[e.managerId].children.push(map[e.id]);}
+    else roots.push(map[e.id]);
+  });
+  return roots;
+}
+
+function renderOrgNode(e,isRoot=false){
+  const k=dc(e.dept);
+  const ooo=e.ooo?`<span style="font-size:8px;color:var(--warn);position:absolute;top:-5px;right:-5px;background:var(--surface);border-radius:10px;padding:1px 4px;border:1px solid rgba(255,179,71,.4)">OOO</span>`:'' ;
+  return `<div class="org-node${isRoot?' mgmt':''} ${k}" onclick="showOrgDetail(${e.id})" style="position:relative">
+    ${ooo}
+    <div class="org-av avatar-color">${ini(e)}</div>
+    <div class="org-name">${e.fname} ${e.lname}</div>
+    <div class="org-job">${e.title}</div>
+    <span class="org-dept-dot" style="background:${dcolor(e.dept)}"></span>
+  </div>`;
+}
+
+function renderOrgTree(nodes,level=0){
+  if(!nodes.length)return'';
+  if(nodes.length===1){
+    const node=nodes[0];
+    return `<div class="org-group">
+      ${renderOrgNode(node,level===0)}
+      ${node.children.length?`
+        <div class="org-connector-v"></div>
+        <div class="org-children-wrap">
+          <div class="org-children" style="position:relative">
+            ${node.children.length>1?`<div class="org-h-line"></div>`:''}
+            ${node.children.map(c=>`
+              <div class="org-child-col">
+                <div class="org-connector-v"></div>
+                ${renderOrgTree([c],level+1)}
+              </div>`).join('')}
+          </div>
+        </div>`:''}
+    </div>`;
+  }
+  return `<div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+    ${nodes.map(n=>renderOrgTree([n],level)).join('')}
+  </div>`;
+}
+
+function renderOrg(){
+  const roots=buildTree();
+  document.getElementById('org-scroll').innerHTML=`<div class="org-tree">${renderOrgTree(roots)}</div>`;
+  document.getElementById('org-detail').classList.remove('vis');
+}
+
+function showOrgDetail(id){
+  const e=emps.find(x=>x.id===id);if(!e)return;
+  const k=dc(e.dept),dm=DEPT[e.dept]||DEPT.Management;
+  const mgr=emps.find(x=>x.id===e.managerId);
+  const reports=emps.filter(x=>x.managerId===id);
+  const ra=(e.resp||'').split(',').map(r=>r.trim()).filter(Boolean);
+  const wa=waN(e.phone);
+  const det=document.getElementById('org-detail');
+  det.innerHTML=`
+    <div class="od-header">
+      <div class="od-av ${k} avatar-color">${ini(e)}</div>
+      <div>
+        <div class="od-name">${e.fname} ${e.lname}${e.ooo?` <span style="font-size:10px;color:var(--warn);background:rgba(255,179,71,.15);padding:2px 6px;border-radius:10px;margin-left:6px">✈️ OOO</span>`:''}</div>
+        <div class="od-job">${e.title} · <span class="dept-color ${k}" style="font-size:10px;padding:1px 6px;border-radius:10px">${dm.icon} ${e.dept}</span></div>
+      </div>
+      <button onclick="document.getElementById('org-detail').classList.remove('vis')" style="margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px">✕</button>
+    </div>
+    <div class="od-meta">
+      <div class="od-field"><div class="od-label">Location</div><div class="od-value">📍 ${e.loc}</div></div>
+      <div class="od-field"><div class="od-label">Phone</div><div class="od-value">${e.phone}</div></div>
+      <div class="od-field"><div class="od-label">Reports to</div><div class="od-value">${mgr?mgr.fname+' '+mgr.lname:'—'}</div></div>
+      <div class="od-field"><div class="od-label">Direct reports</div><div class="od-value">${reports.length?reports.map(r=>r.fname).join(', '):'None'}</div></div>
+    </div>
+    ${ra.length?`<div class="od-resp"><div class="od-resp-label">RESPONSIBILITIES</div><div class="od-resp-tags">${ra.map(r=>`<span class="od-resp-tag">${r}</span>`).join('')}</div></div>`:''}
+    <div class="od-actions">
+      <button class="od-btn wa" onclick="window.open('https://wa.me/${wa}','_blank')">💬 WhatsApp</button>
+      <button class="od-btn" onclick="window.location='tel:${e.phone}'">📞 Call</button>
+      <button class="od-btn" onclick="window.location='mailto:${e.email}'">✉️ Email</button>
+      <button class="od-btn" onclick="viewEmpSOP('${e.dept}')">📘 SOP</button>
+    </div>`;
+  det.classList.add('vis');
+  det.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+/* ════════════════════════════════════
+   PHASE 2C — DASHBOARD
+════════════════════════════════════ */
+function renderDashboard(){
+  // KPIs
+  const ooo=emps.filter(e=>e.ooo).length;
+  const locs=new Set(emps.map(e=>e.loc)).size;
+  const depts=new Set(emps.map(e=>e.dept)).size;
+  const mgrs=emps.filter(e=>emps.some(x=>x.managerId===e.id)).length;
+  document.getElementById('kpi-row').innerHTML=`
+    <div class="kpi-card kpi-accent"><div class="kpi-icon">👥</div><div class="kpi-val">${emps.length}</div><div class="kpi-label">Total Employees</div></div>
+    <div class="kpi-card kpi-blue"><div class="kpi-icon">🏢</div><div class="kpi-val">${depts}</div><div class="kpi-label">Departments</div></div>
+    <div class="kpi-card kpi-green"><div class="kpi-icon">📍</div><div class="kpi-val">${locs}</div><div class="kpi-label">Cities</div></div>
+    <div class="kpi-card kpi-warn"><div class="kpi-icon">✈️</div><div class="kpi-val">${ooo}</div><div class="kpi-label">Out of Office</div></div>
+    <div class="kpi-card kpi-purple"><div class="kpi-icon">👔</div><div class="kpi-val">${mgrs}</div><div class="kpi-label">Managers</div></div>
+  `;
+
+  // By department
+  const byDept={};
+  emps.forEach(e=>{byDept[e.dept]=(byDept[e.dept]||0)+1;});
+  const maxD=Math.max(...Object.values(byDept));
+  const deptBars=Object.entries(byDept).sort((a,b)=>b[1]-a[1]).map(([d,n])=>{
+    const pct=Math.round((n/maxD)*100);
+    const color=dcolor(d);
+    return `<div class="bar-row">
+      <div class="bar-label">${di(d)} ${d}</div>
+      <div class="bar-outer"><div class="bar-inner" style="width:${pct}%;background:${color}"></div></div>
+      <div class="bar-count">${n}</div>
+    </div>`;
+  }).join('');
+
+  // By location
+  const byLoc={};
+  emps.forEach(e=>{byLoc[e.loc]=(byLoc[e.loc]||0)+1;});
+  const locCards=Object.entries(byLoc).sort((a,b)=>b[1]-a[1]).map(([l,n])=>`
+    <div class="loc-badge">
+      <div><div class="loc-num">${n}</div><div class="loc-name">${l}</div></div>
+    </div>`).join('');
+
+  // Dept breakdown per city
+  const cities=[...new Set(emps.map(e=>e.loc))];
+  const cityRows=cities.map(city=>{
+    const cityEmps=emps.filter(e=>e.loc===city);
+    const deptCounts={};
+    cityEmps.forEach(e=>{deptCounts[e.dept]=(deptCounts[e.dept]||0)+1;});
+    const dots=Object.entries(deptCounts).map(([d,n])=>`
+      <span style="font-size:11px;background:${dcolor(d)}22;color:${dcolor(d)};border:1px solid ${dcolor(d)}44;padding:2px 7px;border-radius:10px;margin:2px">${di(d)} ${d}: ${n}</span>
+    `).join('');
+    return `<div style="margin-bottom:14px">
+      <div style="font-size:12px;font-weight:600;font-family:var(--display);margin-bottom:6px">📍 ${city} <span style="font-size:11px;color:var(--muted);font-weight:400">(${cityEmps.length} staff)</span></div>
+      <div style="display:flex;flex-wrap:wrap;gap:2px">${dots}</div>
+    </div>`;
+  }).join('');
+
+  // OOO list
+  const oooList=emps.filter(e=>e.ooo).map(e=>`
+    <div style="display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--border)">
+      <div class="td-av ${dc(e.dept)} avatar-color" style="width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">${ini(e)}</div>
+      <div><div style="font-size:12px;font-weight:500">${e.fname} ${e.lname}</div><div style="font-size:10px;color:var(--muted)">${e.title} · ${e.dept}</div></div>
+    </div>`).join('') || `<div style="font-size:12px;color:var(--muted);padding:10px 0">Everyone is in the office ✅</div>`;
+
+  document.getElementById('dash-grid').innerHTML=`
+    <div class="dash-card">
+      <div class="dash-card-title">👥 Staff by Department</div>
+      ${deptBars}
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-title">📍 Staff by City</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px">${locCards}</div>
+      ${cityRows}
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-title">✈️ Out of Office</div>
+      ${oooList}
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-title">📋 Department Summary</div>
+      ${Object.entries(byDept).map(([d,n])=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:12px">${di(d)} ${d}</span>
+          <span style="font-family:var(--mono);font-size:12px;color:${dcolor(d)};font-weight:500">${n} staff</span>
+        </div>`).join('')}
+    </div>
+  `;
+}
+
+/* ═══ GOOGLE SHEETS ═══ */
+function openSheetsModal(){document.getElementById('gs-url').value=sheetsURL;const su=document.getElementById('gs-sop-url');if(su)su.value=sopURL;document.getElementById('gs-overlay').classList.add('open');}
+function closeGS(){document.getElementById('gs-overlay').classList.remove('open');}
+async function connectSheets(){
+  const btn=document.getElementById('gs-connect-btn');
+  if(btn){btn.textContent='Connecting…';btn.disabled=true;}
+  const url=document.getElementById('gs-url').value.trim();
+  if(!url){toast('⚠️ Enter a URL','var(--warn)');return;}
+  toast('⏳ Connecting…','var(--blue)');
+  try{
+    const res=await fetch(url);if(!res.ok)throw new Error();
+    const csv=await res.text();
+    const objs=csvToObjects(csv);
+    if(!objs.length)throw new Error('No data rows found');
+    const parsed=objs.map((o,i)=>({
+      id:parseInt(o.id)||i+1,
+      fname:o.fname||'',lname:o.lname||'',title:o.title||'',
+      dept:o.dept||'',loc:o.loc||'',phone:o.phone||'',email:o.email||'',
+      resp:o.resp||'',
+      ooo:o.ooo==='true'||o.ooo==='1'||o.ooo==='yes',
+      managerId:parseInt(o.managerid)||null
+    }));
+    if(!parsed.length)throw new Error('No valid employees found');
+    emps=parsed;nid=Math.max(...emps.map(e=>e.id))+1;
+    sheetsURL=url;
+    localStorage.setItem('df_emp_url',url);
+    closeGS();
+    document.getElementById('cdot').classList.add('live');
+    document.getElementById('clabel').textContent='🟢 Live · Google Sheets';
+    document.getElementById('setup-banner').classList.add('hide');
+    applyFilters();
+    // load SOP sheet if provided
+    const sopU=document.getElementById('gs-sop-url').value.trim();
+    if(sopU){sopURL=sopU;localStorage.setItem('df_sop_url',sopU);loadSopFromSheets(sopU);}
+    toast('✅ '+parsed.length+' employees loaded');
+  }catch{toast('❌ Could not connect — check the URL and make sure the sheet is published as CSV.','var(--danger)');}
+  finally{if(btn){btn.textContent='Connect & Load Both';btn.disabled=false;}}
+}
+
+/* ═══ EXPORT CSV ═══ */
+function exportCSV(){
+  const h=['ID','First','Last','Title','Dept','City','Phone','Email','Responsibilities','OOO','ManagerID'];
+  const rows=emps.map(e=>[e.id,e.fname,e.lname,e.title,e.dept,e.loc,e.phone,e.email,e.resp||'',e.ooo?'Yes':'No',e.managerId||'']);
+  const csv=[h,...rows].map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='delta-staff-'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();toast('📥 CSV exported');
+}
+
+/* ═══ CLOSE ON BACKDROP + KEYBOARD ═══ */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    ['m-overlay','c-overlay','gs-overlay'].forEach(id=>{
+      document.getElementById(id)?.classList.remove('open');
+    });
+    document.getElementById('login-screen')?.classList.add('hide');
+    const od=document.getElementById('org-detail');
+    if(od)od.classList.remove('vis');
+  }
+  // Ctrl+K / Cmd+K focuses smart search
+  if((e.ctrlKey||e.metaKey)&&e.key==='k'){
+    e.preventDefault();
+    goView('smart');
+    setTimeout(()=>document.getElementById('smart-input')?.focus(),120);
+  }
+});
+['m-overlay','c-overlay','gs-overlay'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
+});
+
+
+
+/* ═══ ROBUST CSV PARSER ═══ */
+function parseCSV(text){
+  const rows=[];let row=[],cell='',inQ=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i],n=text[i+1];
+    if(inQ){
+      if(c==='"'&&n==='"'){cell+='"';i++;}
+      else if(c==='"'){inQ=false;}
+      else cell+=c;
+    } else {
+      if(c==='"'){inQ=true;}
+      else if(c===','){row.push(cell.trim());cell='';}
+      else if(c==='\r'&&n==='\n'){rows.push(row);row=[];cell='';i++;}
+      else if(c==='\n'||c==='\r'){rows.push(row);row=[];cell='';}
+      else cell+=c;
+    }
+  }
+  if(cell||row.length)row.push(cell.trim());
+  if(row.length)rows.push(row);
+  return rows.filter(r=>r.some(c=>c.length));
+}
+function csvToObjects(text){
+  const rows=parseCSV(text);
+  if(rows.length<2)return[];
+  const hdrs=rows[0].map(h=>h.toLowerCase().replace(/[^a-z0-9_]/g,'').trim());
+  return rows.slice(1).filter(r=>r.some(c=>c.length)).map((r,i)=>{
+    const o={};
+    hdrs.forEach((h,j)=>{o[h]=(r[j]||'').trim();});
+    return o;
+  });
+}
+
+
+/* ═══ TASK OWNERSHIP MATRIX ═══ */
+const TASK_MATRIX=[
+  {task:'Employment Certificate',category:'HR',keywords:['employment','certificate','letter','iqama'],dept:'HR',sop_dept:'HR',sop_title:'Employment Certificate & Letter Requests'},
+  {task:'Staff Onboarding',category:'HR',keywords:['onboarding','new hire','joining','new employee'],dept:'HR',sop_dept:'HR',sop_title:'New Employee Onboarding'},
+  {task:'Leave Management',category:'HR',keywords:['leave','annual leave','sick leave','absence','vacation'],dept:'HR',sop_dept:'HR',sop_title:'New Employee Onboarding'},
+  {task:'Salary / Payroll Issue',category:'Finance',keywords:['salary','payroll','pay','wage','compensation'],dept:'Finance',sop_dept:'Finance',sop_title:'Contractor Payment Process'},
+  {task:'Contractor Payment',category:'Finance',keywords:['contractor','subcontractor','payment','pay contractor'],dept:'Finance',sop_dept:'Finance',sop_title:'Contractor Payment Process'},
+  {task:'Client Invoice',category:'Finance',keywords:['invoice','billing','client payment','collection','receivable'],dept:'Finance',sop_dept:'Finance',sop_title:'Client Invoice & Collection'},
+  {task:'PO / Purchase Order Handling',category:'Sales',keywords:['po','purchase order','lpo','order handling'],dept:'Sales',sop_dept:'Sales',sop_title:'Purchase Order & Order Placement'},
+  {task:'Quotation & Proposal',category:'Sales',keywords:['quotation','quote','proposal','rfq','pricing'],dept:'Sales',sop_dept:'Sales',sop_title:'Quotation & Proposal Process'},
+  {task:'Client Delivery & Handover',category:'Sales',keywords:['delivery','handover','installation','commissioning','hac'],dept:'Sales',sop_dept:'Sales',sop_title:'Delivery & Client Handover'},
+  {task:'Job Order / Equipment Repair',category:'Maintenance',keywords:['job order','repair','breakdown','equipment fault','service call'],dept:'Maintenance',sop_dept:'Maintenance',sop_title:'Job Order & Equipment Repair'},
+  {task:'Preventive Maintenance Visit',category:'Maintenance',keywords:['preventive maintenance','pm visit','scheduled service','amc visit'],dept:'Maintenance',sop_dept:'Maintenance',sop_title:'Preventive Maintenance Schedule'},
+  {task:'Import & Customs Clearance',category:'Supply Chain',keywords:['import','customs','clearance','shipping','freight','port'],dept:'Supply Chain',sop_dept:'Supply Chain',sop_title:'Import & Customs Clearance'},
+  {task:'Warehouse Receiving',category:'Supply Chain',keywords:['warehouse','receiving','stock','goods received','goods in','inventory'],dept:'Supply Chain',sop_dept:'Supply Chain',sop_title:'Goods Receiving & Warehousing'},
+  {task:'AMC Follow-up & Renewal',category:'After-Sales',keywords:['amc','annual maintenance','contract renewal','service contract'],dept:'After-Sales',sop_dept:'After-Sales',sop_title:'Annual Maintenance Contract (AMC) Management'},
+  {task:'Project Coordination',category:'Operations',keywords:['project','coordination','site management','installation project'],dept:'Operations',sop_dept:'Operations',sop_title:'Project Coordination & Site Management'},
+  {task:'IT Support / System Access',category:'IT',keywords:['it support','system access','email setup','network','software'],dept:'IT',sop_dept:'Operations',sop_title:'Project Coordination & Site Management'},
+  {task:'Marketing Campaign',category:'Marketing',keywords:['marketing','campaign','social media','brand','advertisement'],dept:'Marketing',sop_dept:'Operations',sop_title:'Project Coordination & Site Management'},
+];
+let tmFilter='all',tmQuery='';
+function renderTaskMatrix(){
+  let items=TASK_MATRIX;
+  if(tmFilter!=='all')items=items.filter(t=>t.category===tmFilter||t.dept===tmFilter);
+  const q2=tmQuery.toLowerCase().trim();if(q2)items=items.filter(t=>t.task.toLowerCase().includes(q2)||t.keywords.some(k=>k.includes(q2))||t.dept.toLowerCase().includes(q2));
+  const cats=[...new Set(TASK_MATRIX.map(t=>t.category))];
+  const filterHtml=`<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px;align-items:center">
+    <span class="fl">Filter</span>
+    <div class="chip${tmFilter==='all'?' active':''}" onclick="setTmFilter('all')">All</div>
+    ${cats.map(c=>`<div class="chip${tmFilter===c?' active':''}" onclick="setTmFilter('${c}')">${c}</div>`).join('')}
+  </div>`;
+  const rows=items.map(t=>{
+    const responsible=emps.filter(e=>e.dept===t.dept||e.dept===t.sop_dept).sort((a,b)=>{
+      // prefer managers
+      const am=a.title.toLowerCase().includes('manager')||a.title.toLowerCase().includes('supervisor');
+      const bm=b.title.toLowerCase().includes('manager')||b.title.toLowerCase().includes('supervisor');
+      return bm-am;
+    }).slice(0,2);
+    const empHtml=responsible.map(e=>{
+      const k=dc(e.dept);const wa=waN(e.phone);
+      return `<span class="tm-emp-chip ${k} dept-color" onclick="event.stopPropagation();window.open('https://wa.me/${wa}','_blank')" title="WhatsApp ${e.fname}">${ini(e)} ${e.fname} ${e.lname}</span>`;
+    }).join('');
+    const hasSop=sopData.some(s=>s.department===t.sop_dept&&s.sop_title===t.sop_title);
+    const sopBtn=hasSop?`<button class="tm-sop-btn" onclick="event.stopPropagation();viewEmpSOP('${t.sop_dept}','${t.sop_title}')">📘 SOP</button>`:'';
+    return `<div class="tm-row" onclick="viewEmpSOP('${t.sop_dept}','${t.sop_title}')">
+      <div class="tm-task">${t.task}</div>
+      <div class="tm-dept"><span class="td-badge ${dc(t.dept)} dept-color">${di(t.dept)} ${t.dept}</span></div>
+      <div class="tm-emp">${empHtml||'<span style="color:var(--muted2);font-size:11px">No match</span>'}</div>
+      <div class="tm-sop">${sopBtn}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('tm-body').innerHTML=filterHtml+(rows||`<div style="text-align:center;padding:40px;color:var(--muted)"><div style="font-size:32px;margin-bottom:10px">🔎</div>No tasks match</div>`);
+}
+function setTmFilter(f){tmFilter=f;renderTaskMatrix();}
+
+/* ════════════════════════════════════════
+   SOP MODULE
+════════════════════════════════════════ */
+const SOP_DEPTS=[
+  {key:'Sales',       icon:'📈', desc:'Quotation, PO handling, client order placement and delivery process.'},
+  {key:'Finance',     icon:'💰', desc:'Payments, invoicing, contractor billing and financial controls.'},
+  {key:'Supply Chain',icon:'📦', desc:'Import logistics, goods receiving, warehouse and stock management.'},
+  {key:'Maintenance', icon:'🔧', desc:'Equipment servicing, job orders, preventive maintenance and escalation.'},
+  {key:'HR',          icon:'👤', desc:'Employment certificates, onboarding, leave and staff contracts.'},
+  {key:'Operations',  icon:'🏢', desc:'Project coordination, site handover, installation oversight.'},
+  {key:'After-Sales', icon:'⭐', desc:'AMC contracts, service follow-up, client satisfaction management.'},
+];
+
+let sopData=[
+  // SALES
+  {department:'Sales',sop_title:'Quotation & Proposal Process',purpose:'Ensure every client receives a professional, approved quotation within agreed timelines.',steps:'Receive client inquiry by email or phone|Log inquiry in CRM with date and contact details|Conduct site visit or virtual call within 2 business days|Prepare equipment list and floor plan|Get internal discount approval from Sales Manager|Prepare quotation using official Delta Fitness template|Get line manager sign-off before sending|Send quotation and follow up by phone same day|Log quotation number and validity date in tracker|Follow up every 3 days until decision is made',documents:'Inquiry log form,Quotation template,Product datasheets,Floor plan sketch',controls:'No quotation sent without line manager approval|Quotation validity must be stated (30 days)|Revisions must be versioned v1/v2',escalation:'Sales Manager'},
+  {department:'Sales',sop_title:'Purchase Order & Order Placement',purpose:'Convert approved quotation to confirmed order and place with supplier without delays.',steps:'Receive signed client PO or LPO|Verify PO matches final quotation items and prices|Collect initial payment per agreed terms|Issue official invoice or pro-forma|Confirm receipt of payment with Finance|Notify Sales Manager: deal closed — update CRM to Won|Create internal Sales Order form with full specs|Confirm product availability with Supply Chain|Raise purchase request to procurement if not in stock|Communicate delivery date to client',documents:'Client PO/LPO,Sales Order form,Invoice,Payment confirmation',controls:'No order placed without payment confirmation|Sales Order must match client PO exactly',escalation:'Sales Manager'},
+  {department:'Sales',sop_title:'Delivery & Client Handover',purpose:'Ensure smooth delivery, installation and formal client acceptance.',steps:'Confirm delivery date and time with client 3 days before|Verify site is ready: power, flooring, access|Brief installation team on scope|Cross-check all delivered items against packing list|Inspect for shipping damage before unloading|Client signs Delivery Receipt Note (DRN)|Installation team assembles and commissions equipment|Test all functions and document results|Train client staff on equipment operation|Client signs Handover Acceptance Certificate (HAC)|Upload DRN and HAC to project file|Update CRM to Delivered & Closed',documents:'Delivery Receipt Note (DRN),Handover Acceptance Certificate (HAC),Installation report',controls:'No handover without signed HAC|All damage must be photographed and reported immediately',escalation:'Sales Manager → Operations Manager'},
+  {department:'Finance',sop_title:'Contractor Payment Process',purpose:'Ensure contractor payments are processed accurately, on time and with proper authorization.',steps:'Receive contractor invoice with supporting documents|Verify invoice against approved PO or contract|Check that services or goods were actually received|Finance Officer reviews and stamps invoice|Line manager approval required above SAR 10,000|Prepare payment voucher|Submit to Finance Manager for final sign-off|Process bank transfer or cheque|Send payment confirmation to contractor|File all documents in payment archive',documents:'Contractor invoice,Purchase Order,Payment voucher,Bank transfer receipt',controls:'No payment without approved PO|Payments above SAR 10,000 require Finance Manager sign-off|Duplicate invoice check mandatory',escalation:'Finance Manager'},
+  {department:'Finance',sop_title:'Client Invoice & Collection',purpose:'Issue invoices promptly and follow up on outstanding payments systematically.',steps:'Confirm delivery or service completion with Operations|Generate invoice within 24 hours of delivery|Send invoice to client by email with payment terms|Log invoice in receivables tracker|Follow up if not paid within 7 days of due date|Send formal reminder at 14 days overdue|Escalate to Sales Manager at 30 days overdue|Arrange payment plan if client requests|Record payment upon receipt|Close invoice in accounting system',documents:'Sales invoice,Delivery confirmation,Payment terms,Collection log',controls:'No invoice issued without delivery confirmation|All follow-ups must be logged with date and contact name',escalation:'Finance Manager → Sales Manager'},
+  {department:'Supply Chain',sop_title:'Import & Customs Clearance',purpose:'Ensure imported equipment clears customs on time with correct documentation.',steps:'Receive purchase order from sales team|Contact Life Fitness or Hammer Strength supplier|Confirm lead time and shipping schedule|Receive commercial invoice and packing list from supplier|Prepare customs declaration and submit to broker|Track shipment status daily|Coordinate with warehouse for receiving date|Inspect goods at port against packing list|Clear customs and arrange inland transport|Deliver to warehouse and update stock records',documents:'Commercial invoice,Packing list,Bill of lading,Customs declaration,Delivery note',controls:'No customs submission without complete documents|All shipment discrepancies must be reported within 24 hours',escalation:'Supply Chain Manager'},
+  {department:'Supply Chain',sop_title:'Goods Receiving & Warehousing',purpose:'Ensure all incoming goods are checked, recorded and stored properly.',steps:'Receive advance shipment notice from supplier or logistics|Prepare warehouse space before arrival|Check delivery vehicle and unload safely|Cross-check all items against purchase order|Inspect for damage — photograph any issues immediately|Record received items in stock system|Store items in correct zone by department|Notify relevant department that goods are ready|Update inventory levels in system|File delivery note and any discrepancy reports',documents:'Purchase Order,Delivery note,Stock receiving form,Discrepancy report',controls:'No goods accepted without purchase order on file|Damaged goods must be quarantined and reported same day',escalation:'Supply Chain Manager'},
+  {department:'Maintenance',sop_title:'Job Order & Equipment Repair',purpose:'Respond to equipment breakdown reports efficiently and restore service with minimum downtime.',steps:'Receive breakdown report from client or internal team|Log job in service system with date, location and equipment details|Assign nearest available technician|Technician contacts client within 2 hours to confirm visit|Technician inspects equipment and diagnoses fault|If spare part needed: raise part request to Supply Chain|Carry out repair following Life Fitness/Hammer Strength guidelines|Test equipment after repair — document test results|Client signs Job Completion Report|Close job in system and update equipment history',documents:'Job Order form,Job Completion Report,Spare parts request,Service record',controls:'No job closed without client signature|Response to client must be within 2 hours of report|Escalate if part not available within 3 days',escalation:'Maintenance Supervisor → Supply Chain Manager'},
+  {department:'Maintenance',sop_title:'Preventive Maintenance Schedule',purpose:'Conduct regular preventive maintenance visits to extend equipment life and prevent breakdowns.',steps:'Generate monthly PM schedule from AMC client list|Send visit confirmation to client 3 days before|Technician arrives with PM checklist and tools|Inspect all equipment per Life Fitness PM guidelines|Clean, lubricate and calibrate each unit|Replace consumables as required|Document all readings and observations|Client signs PM Completion Certificate|Upload certificate to client file|Flag any equipment requiring urgent attention',documents:'PM Checklist,PM Completion Certificate,AMC contract,Equipment service log',controls:'PM visits must be completed as per AMC schedule|Any equipment issue found must be reported to client in writing same day',escalation:'Maintenance Supervisor'},
+  {department:'HR',sop_title:'Employment Certificate & Letter Requests',purpose:'Issue official employment documents to staff within agreed timeframe.',steps:'Employee submits request via email or HR portal|HR Officer verifies employee is active in system|Check type of letter required: salary, employment, experience|Draft letter on official Delta Fitness letterhead|Get HR Manager review and signature|Prepare Arabic version if required|Notify employee letter is ready for collection|Log issue date and letter type in HR records|File copy of issued letter in employee file',documents:'Request form,Official letterhead,Employee record,Letter copy',controls:'No letter issued for inactive or resigned employees|All letters must be signed by HR Manager|Processing time: maximum 2 working days',escalation:'HR Manager'},
+  {department:'HR',sop_title:'New Employee Onboarding',purpose:'Ensure new employees are set up completely and feel welcomed on their first day.',steps:'Send offer letter and get signed copy back|Collect all required documents: ID, qualifications, photos|Set up employee in HR system with correct department and manager|Coordinate with IT to create email and system access|Arrange workstation and equipment|Prepare employment contract for signature on Day 1|Conduct orientation: introduce team, explain policies|Issue employee ID and access cards|Enroll in payroll system|Schedule 30-day check-in meeting',documents:'Offer letter,Employment contract,Onboarding checklist,ID documents',controls:'No system access created before contract is signed|Payroll enrollment must happen before 25th of joining month',escalation:'HR Manager'},
+  {department:'Operations',sop_title:'Project Coordination & Site Management',purpose:'Coordinate gym installation projects from order confirmation to final handover.',steps:'Receive confirmed sales order from Sales team|Create project file with client details and scope|Schedule delivery and installation dates with client|Brief installation team and assign project lead|Monitor delivery and confirm site readiness|Oversee installation and resolve on-site issues|Conduct quality check before client walkthrough|Coordinate client training session|Collect signed Handover Acceptance Certificate|Close project and archive all documents',documents:'Sales Order,Project schedule,Handover Acceptance Certificate,Client sign-off',controls:'No installation starts without confirmed site readiness|All projects must have a named project lead',escalation:'Operations Manager'},
+  {department:'After-Sales',sop_title:'Annual Maintenance Contract (AMC) Management',purpose:'Retain clients through professional AMC service and timely renewal.',steps:'Register all equipment serial numbers at handover|Create AMC proposal within 30 days of handover|Present AMC options to client — Basic, Standard, Premium|Get signed AMC contract and collect payment|Set up PM schedule in service system|Assign dedicated technician to account|Conduct first PM visit within 90 days|Send renewal reminder 60 days before expiry|Prepare renewal quotation with updated pricing|Follow up until renewal is confirmed',documents:'Equipment serial number log,AMC contract,PM schedule,Renewal quotation',controls:'No AMC created without equipment registration|Renewal reminder must be sent at 60 days — not later',escalation:'After-Sales Manager → Sales Manager'},
+];
+
+let sopURL='';
+let activeSopDept=null;
+
+function loadSopFromStorage(){
+  const saved=localStorage.getItem('df_sop_url');
+  if(saved)sopURL=saved;
+  const savedData=localStorage.getItem('df_sop_data');
+  if(savedData){try{sopData=JSON.parse(savedData);}catch(e){}}
+}
+
+function renderSopIndex(){
+  const nb=document.getElementById('nb-sop');
+  if(nb)nb.textContent=[...new Set(sopData.map(s=>s.department))].length;
+  document.getElementById('sop-index').style.display='';
+  document.getElementById('sop-detail').classList.remove('vis');
+  const grid=document.getElementById('sop-dept-grid');
+  grid.innerHTML=SOP_DEPTS.map(d=>{
+    const count=sopData.filter(s=>s.department===d.key).length;
+    return `<div class="sop-dept-card" onclick="openSopDept('${d.key}')" style="--dc:${dcolor(d.key)||'var(--accent)'}">
+      <div class="sop-dept-card-glow" style="position:absolute;top:0;left:0;right:0;height:2px;background:${dcolor(d.key)||'var(--accent)'};opacity:0;transition:opacity .2s"></div>
+      <div class="sop-dept-icon">${d.icon}</div>
+      <div class="sop-dept-name">${d.key}</div>
+      <div class="sop-dept-desc">${d.desc}</div>
+      <div class="sop-dept-footer">
+        <span class="sop-count-badge">${count} SOP${count!==1?'s':''}</span>
+        <span class="sop-open-btn">View →</span>
+      </div>
+    </div>`;
+  }).join('');
+  // hover glow
+  document.querySelectorAll('.sop-dept-card').forEach(c=>{
+    const glow=c.querySelector('.sop-dept-card-glow');
+    c.addEventListener('mouseenter',()=>{if(glow)glow.style.opacity='1';});
+    c.addEventListener('mouseleave',()=>{if(glow)glow.style.opacity='0';});
+  });
+}
+
+function openSopDept(dept){
+  activeSopDept=dept;
+  document.getElementById('sop-index').style.display='none';
+  const det=document.getElementById('sop-detail');
+  det.classList.add('vis');
+  const dm=SOP_DEPTS.find(d=>d.key===dept)||{icon:'📘'};
+  document.getElementById('sop-detail-title').textContent=dm.icon+' '+dept+' SOPs';
+  document.getElementById('sop-detail-sub').textContent=dm.desc||'';
+  document.getElementById('sop-search').value='';
+  renderSopAccordion(dept,'');
+}
+
+function sopBack(){
+  activeSopDept=null;
+  document.getElementById('sop-index').style.display='';
+  document.getElementById('sop-detail').classList.remove('vis');
+}
+
+function filterSOPs(){
+  const q=document.getElementById('sop-search').value;
+  renderSopAccordion(activeSopDept,q);
+}
+
+function renderSopAccordion(dept,filter=''){
+  const q=filter.toLowerCase().trim();
+  let items=sopData.filter(s=>s.department===dept);
+  if(q)items=items.filter(s=>(s.sop_title+s.purpose+s.steps+s.documents+s.controls+s.escalation).toLowerCase().includes(q));
+  const acc=document.getElementById('sop-accordion');
+  if(!items.length){
+    acc.innerHTML=`<div style="text-align:center;padding:40px 20px;color:var(--muted)"><div style="font-size:32px;margin-bottom:10px">📂</div><div>No SOPs found${q?' for "'+filter+'"':''}</div></div>`;
+    return;
+  }
+  acc.innerHTML=items.map((sop,idx)=>{
+    const steps=(sop.steps||'').split(/[|;]/).map(s=>s.trim()).filter(Boolean);
+    const docs=(sop.documents||'').split(',').map(d=>d.trim()).filter(Boolean);
+    const ctrls=(sop.controls||'').split('|').filter(Boolean);
+    const esc=sop.escalation||'';
+    // find linked employee
+    const linked=emps.filter(e=>e.dept===dept||e.title.toLowerCase().includes(esc.toLowerCase().split(' ')[0].toLowerCase())).slice(0,2);
+    const linkedHtml=linked.map(e=>{
+      const k=dc(e.dept);const wa=waN(e.phone);
+      return `<div class="sop-linked-emp" onclick="event.stopPropagation();goView('directory')">
+        <div class="sop-linked-av ${k} avatar-color">${ini(e)}</div>
+        <div class="sop-linked-info">
+          <div class="sop-linked-name">${e.fname} ${e.lname}</div>
+          <div class="sop-linked-role">${e.title}</div>
+        </div>
+        <button class="sop-linked-wa" onclick="event.stopPropagation();window.open('https://wa.me/${wa}','_blank')">💬 WA</button>
+      </div>`;
+    }).join('');
+    return `<div class="sop-item" id="sop-item-${idx}">
+      <div class="sop-item-header" onclick="toggleSopItem(${idx})">
+        <span class="sop-item-num">SOP ${String(idx+1).padStart(2,'0')}</span>
+        <span class="sop-item-title">${sop.sop_title}</span>
+        <span class="sop-item-resp">${esc||dept}</span>
+        <span class="sop-item-chevron">▶</span>
+      </div>
+      <div class="sop-item-body">
+        <div class="sop-section">
+          <div class="sop-section-label">Purpose</div>
+          <div class="sop-purpose">${sop.purpose||'—'}</div>
+        </div>
+        <div class="sop-section">
+          <div class="sop-section-label">Process Steps</div>
+          <div class="sop-steps">${steps.map((s,i)=>`<div class="sop-step"><span class="sop-step-num">${i+1}</span><span class="sop-step-text">${s}</span></div>`).join('')}</div>
+        </div>
+        ${docs.length?`<div class="sop-section"><div class="sop-section-label">Required Documents</div><div class="sop-tags-row">${docs.map(d=>`<span class="sop-tag doc">📄 ${d}</span>`).join('')}</div></div>`:''}
+        ${ctrls.length?`<div class="sop-section"><div class="sop-section-label">Control Points</div><div class="sop-tags-row">${ctrls.map(c=>`<span class="sop-tag ctrl">⚠️ ${c}</span>`).join('')}</div></div>`:''}
+        ${esc?`<div class="sop-section"><div class="sop-section-label">Escalation Point</div><div class="sop-tags-row"><span class="sop-tag esc">🔺 ${esc}</span></div></div>`:''}
+        ${linked.length?`<div class="sop-section"><div class="sop-section-label">Responsible Staff</div>${linkedHtml}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleSopItem(idx){
+  const item=document.getElementById('sop-item-'+idx);
+  const wasOpen=item.classList.contains('open');
+  document.querySelectorAll('.sop-item').forEach(i=>i.classList.remove('open'));
+  if(!wasOpen)item.classList.add('open');
+}
+
+/* ── SOP on employee cards ── */
+function viewEmpSOP(dept,title=''){
+  const map={'Maintenance':'Maintenance','Supply Chain':'Supply Chain','HR':'HR','Finance':'Finance','Sales':'Sales','Marketing':'Operations','IT':'Operations','Management':'Operations','After-Sales':'After-Sales'};
+  const mapped=SOP_DEPTS.find(d=>d.key===dept)?dept:(map[dept]||'Operations');
+  goView('sop');
+  setTimeout(()=>{
+    openSopDept(mapped);
+    if(title){
+      // open specific item
+      setTimeout(()=>{
+        const items=document.querySelectorAll('.sop-item-title');
+        items.forEach((el,i)=>{if(el.textContent.includes(title.substring(0,20))){toggleSopItem(i);el.scrollIntoView({behavior:'smooth',block:'center'});}});
+      },200);
+    }
+  },100);
+}
+
+/* ── Smart search SOP linking ── */
+const SOP_KEYWORDS={
+  'payment':['Finance','Client Payment Process'],'invoice':['Finance','Client Invoice & Collection'],
+  'contractor':['Finance','Contractor Payment Process'],'quotation':['Sales','Quotation & Proposal Process'],
+  'po':['Sales','Purchase Order & Order Placement'],'purchase order':['Sales','Purchase Order & Order Placement'],
+  'delivery':['Sales','Delivery & Client Handover'],'handover':['Sales','Delivery & Client Handover'],
+  'maintenance':['Maintenance','Job Order & Equipment Repair'],'repair':['Maintenance','Job Order & Equipment Repair'],
+  'job order':['Maintenance','Job Order & Equipment Repair'],'preventive':['Maintenance','Preventive Maintenance Schedule'],
+  'employment certificate':['HR','Employment Certificate & Letter Requests'],'letter':['HR','Employment Certificate & Letter Requests'],
+  'onboarding':['HR','New Employee Onboarding'],'iqama':['HR','New Employee Onboarding'],
+  'import':['Supply Chain','Import & Customs Clearance'],'customs':['Supply Chain','Import & Customs Clearance'],
+  'warehouse':['Supply Chain','Goods Receiving & Warehousing'],'stock':['Supply Chain','Goods Receiving & Warehousing'],
+  'amc':['After-Sales','Annual Maintenance Contract (AMC) Management'],'contract':['After-Sales','Annual Maintenance Contract (AMC) Management'],
+  'project':['Operations','Project Coordination & Site Management'],'installation':['Operations','Project Coordination & Site Management'],
+};
+
+function getSopLink(query){
+  const q=query.toLowerCase();
+  for(const[kw,[dept,title]] of Object.entries(SOP_KEYWORDS)){
+    if(q.includes(kw))return{dept,title};
+  }
+  return null;
+}
+
+/* ── Load SOP from Google Sheets ── */
+async function loadSopFromSheets(url){
+  if(!url)return;
+  try{
+    const res=await fetch(url);if(!res.ok)return;
+    const csv=await res.text();
+    const rows=csv.split('\n').map(r=>{
+      const cols=[];let cur='',inQ=false;
+      for(let i=0;i<r.length;i++){
+        if(r[i]==='"'){inQ=!inQ;}
+        else if(r[i]===','&&!inQ){cols.push(cur.trim());cur='';}
+        else cur+=r[i];
+      }
+      cols.push(cur.trim());return cols;
+    });
+    const hdrs=rows[0].map(h=>h.toLowerCase().replace(/"/g,'').trim());
+    const parsed=rows.slice(1).filter(r=>r.length>1&&r[0]).map(r=>{
+      const o={};
+      hdrs.forEach((h,j)=>{o[h]=(r[j]||'').replace(/^"|"$/g,'');});
+      return o;
+    });
+    if(parsed.length){
+      sopData=parsed;
+      localStorage.setItem('df_sop_data',JSON.stringify(sopData));
+      toast('✅ SOP data loaded: '+parsed.length+' records');
+    }
+  }catch(e){toast('⚠️ Could not load SOP sheet','var(--warn)');}
+}
+
+/* ═══ INIT ═══ */
+(async()=>{
+  loadSopFromStorage();
+  initViews();
+  initSmartSearch();
+  applyFilters();
+  // auto-reconnect from localStorage
+  const savedEmp=localStorage.getItem('df_emp_url');
+  const savedSop=localStorage.getItem('df_sop_url');
+  if(savedEmp){
+    try{
+      const res=await fetch(savedEmp);
+      if(res.ok){
+        const csv=await res.text();
+        const rows=csv.split('\n').map(r=>r.split(',').map(c=>c.trim().replace(/^"|"$/g,'')));
+        const hdrs=rows[0].map(h=>h.toLowerCase().trim());
+        const parsed=rows.slice(1).filter(r=>r.length>1&&r[0]).map((r,i)=>{
+          const o={id:i+1};
+          hdrs.forEach((h,j)=>{
+            if(h==='ooo')o.ooo=r[j]==='true'||r[j]==='1'||r[j]==='yes';
+            else if(h==='id')o.id=parseInt(r[j])||i+1;
+            else if(h==='managerid')o.managerId=parseInt(r[j])||null;
+            else o[h]=r[j]||'';
+          });
+          return o;
+        });
+        if(parsed.length){
+          emps=parsed;nid=Math.max(...emps.map(e=>e.id))+1;
+          sheetsURL=savedEmp;
+          document.getElementById('cdot').classList.add('live');
+          document.getElementById('clabel').textContent='🟢 Live · Google Sheets';
+          document.getElementById('setup-banner').classList.add('hide');
+          applyFilters();toast('✅ Auto-synced: '+parsed.length+' employees');
+        }
+      }
+    }catch(e){}
+  }
+  if(savedSop)await loadSopFromSheets(savedSop);
+  // Sync button in admin
+  const syncBtn=document.createElement('button');
+  syncBtn.className='btn-add';syncBtn.style.background='var(--blue)';syncBtn.style.fontFamily='var(--font)';
+  syncBtn.textContent='🔄 Sync from Sheets';
+  syncBtn.onclick=async()=>{
+    const eu=localStorage.getItem('df_emp_url');
+    const su=localStorage.getItem('df_sop_url');
+    if(!eu&&!su){toast('⚠️ Connect Google Sheets first','var(--warn)');return;}
+    if(eu){document.getElementById('gs-url').value=eu;await connectSheets();}
+    if(su)await loadSopFromSheets(su);
+  };
+  const ah=document.querySelector('.admin-header');
+  if(ah)ah.appendChild(syncBtn);
+})();
+</script>
+</body>
+</html>
